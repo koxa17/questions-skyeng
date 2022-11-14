@@ -74,7 +74,6 @@
 
 <script>
 import html2canvas from 'html2canvas';
-
 export default {
   name: "form-questions",
   props: {},
@@ -153,9 +152,9 @@ export default {
       return (typeof sum) === 'number' ? sum : 0
     },
     formReset() {
-      let answer = confirm("Вы уверенны что хотите очистить форму?")
       let questions = []
-      if (answer) {
+      let onOk = () => {
+
         questions = this.questions = this.questions.map(item => {
           if (item.result > 0 || !isNaN(item.result)) {
             item.result = 0
@@ -174,9 +173,29 @@ export default {
         this.$set(this.questions, '', questions)
         localStorage.setItem("questions", JSON.stringify(questions))
 
-        this.$notify({type: 'success', text: 'Форма была очищенна!'})
+        this.$awn.success("Форма была очищенна!", {labels: {
+          success: ''
+        } })
 
-      }
+      };
+
+      let onCancel = () => {
+
+      };
+
+      this.$awn.confirm(
+          "Вы уверенны что хотите очистить форму?",
+          onOk,
+          onCancel,
+          {
+            labels: {
+              confirm: '',
+              confirmOk: "Да",
+              confirmCancel: 'Отмена'
+            }
+          }
+      )
+
     },
     async getScreenshot() {
       const canvas = await html2canvas(this.$refs.screenshot)
@@ -373,7 +392,7 @@ a.hidden {
 </style>
 
 <style>
-.vue-notification {
-  font-size: 18px !important;
+.awn-toast-content{
+  font-size: 18px;
 }
 </style>
