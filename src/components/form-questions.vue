@@ -10,12 +10,14 @@
             <span>
             <span v-if="!question.more">
               <button class="btn"
-                      @click="questionIncrement(question)">Спросила!</button><input
-                type="text" class="input__result" readonly v-model="question.result">
+                      @click="questionIncrement(question)">Спросила!</button>
+              <input
+                type="text" class="input__result" readonly v-model="question.result"
+                @contextmenu.prevent.stop="$emit('openContextMenu', $event, question)">
             </span>
           </span>
             <span v-if="question.more">
-            <input type="text" class="input__result" readonly
+            <input type="text" class="input__result input__result-sum" readonly
                    :value="sumQuestions(question)">
           </span>
           </p>
@@ -29,7 +31,7 @@
               <input type="text"
                      class="input__result"
                      readonly
-                     v-model="more.result">
+                     v-model="more.result" @contextmenu.prevent.stop="$emit('openContextMenu', $event, question)">
             </span>
             </p>
           </li>
@@ -51,6 +53,7 @@
 
 <script>
 import html2canvas from 'html2canvas';
+
 export default {
   name: "form-questions",
   props: {},
@@ -86,7 +89,10 @@ export default {
         {id: 7, title: "Спросил про детей!", result: 0},
         {id: 8, title: "Озвучил Акцию", result: 0},
         {id: 9, title: "Попрощался!", result: 0},
-      ]
+      ],
+      options: {
+        divider: true
+      }
     }
   },
   methods: {
@@ -144,7 +150,7 @@ export default {
       this.$refs.down.download = 'filename.png';
       this.$refs.down.href = canvas.toDataURL()
       this.$refs.down.click();
-    }
+    },
   },
   watch: {
     questions: {
@@ -194,6 +200,12 @@ p span:last-of-type {
   margin-left: 10px;
 }
 
+button {
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+
 
 ul {
   padding-left: 50px;
@@ -206,6 +218,20 @@ ul {
   text-align: center;
   height: 20px;
   font-weight: bold;
+  border: 2px solid gray;
+  border-radius: 3px;
+}
+
+.input__result:hover {
+  cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
+}
+
+.input__result-sum:focus-visible {
+  outline: none;
+}
+
+input.input__result:hover {
+  border: 2px solid black;
 }
 
 .footer {
