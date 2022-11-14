@@ -7,10 +7,8 @@
 
     <ki-context
         ref="kiContext"
-        minWidth='1em'
-        maxWidth='15em'
         backgroundColor='#fbfbfb'
-        fontSize='15px'
+        fontSize='14px'
         textColor='#35495e'
         iconColor='#41b883'
         borderRadius='0.1'
@@ -29,29 +27,23 @@ export default {
   },
   methods: {
     openContextMenu(event, item) {
-      console.log(item)
+      let disabled = item.result === 0
+
       let contextMenuItem = [
         {
-          icon: "arrow-up",
-          text: 'Default',
-          click: () => {
-            alert('Option0!')
-          }
-        },
-        {
-          icon: 'arrow-right',
-          text: 'With divider',
+          icon: 'fa-pen',
+          text: 'Редактировать',
           divider: true,
           click: () => {
             alert('Option2!')
           }
         },
         {
-          icon: 'arrow-down',
-          text: 'Disabled',
-          disabled: true,
+          icon: "fa-minus",
+          text: 'Минус 1',
+          disabled: disabled,
           click: () => {
-            alert('Option3!')
+            alert('Option0!')
           }
         }]
 

@@ -222,16 +222,19 @@ ul {
   border-radius: 3px;
 }
 
-.input__result:hover {
-  cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
-}
+
 
 .input__result-sum:focus-visible {
   outline: none;
 }
 
 input.input__result:hover {
+  cursor: default;
+}
+
+input.input__result:not(.input__result-sum):hover {
   border: 2px solid black;
+  cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
 }
 
 .footer {
