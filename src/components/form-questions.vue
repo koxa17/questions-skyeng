@@ -10,24 +10,27 @@
             <span>
             <span v-if="!question.more">
               <button class="btn"
-                      @click="questionIncrement(question)">Спросила!</button>
-              <!--              <input-->
-              <!--                type="text" class="input__result" readonly v-model="question.result"-->
-              <!--                @contextmenu.prevent.stop="openContextMenu($event, question)">-->
-
-              <span @contextmenu.prevent.stop="openContextMenu($event, question)" class="input__result"
-                    @blur="contentSave($event)" @change="changeResult($event)" @keydown.enter="contentSave($event)">
-                {{ question.result }}
-              </span>
+                      @click="questionIncrement(question)">Спросила!
+              </button>
+              <input
+                  type="text"
+                  class="input__result"
+                  readonly
+                  v-model="question.result"
+                  @contextmenu.prevent.stop="openContextMenu($event, question)"
+                  v-mask="'#####'"
+                  @blur="saveContentInput($event, question)"
+              >
             </span>
           </span>
             <span v-if="question.more">
-<!--            <input type="text" class="input__result input__result-sum" readonly-->
-              <!--                   :value="sumQuestions(question)" @contextmenu.prevent.stop>-->
-
-              <span @contextmenu.prevent.stop class="input__result input__result-sum">
-                {{ sumQuestions(question) }}
-              </span>
+            <input
+                type="text"
+                class="input__result input__result-sum"
+                readonly
+                :value="sumQuestions(question)"
+                @contextmenu.prevent.stop
+            >
 
           </span>
           </p>
@@ -38,18 +41,14 @@
               <span>{{ more.title }}</span>
               <span>
               <button class="btn" @click="questionIncrement(question, more)">Спросила!</button>
-                <!--              <input type="text"-->
-                <!--                     class="input__result"-->
-                <!--                     readonly-->
-                <!--                     v-model="more.result" @contextmenu.prevent.stop="openContextMenu($event, question, more)">-->
-
-                <span
-                    @contextmenu.prevent.stop="openContextMenu($event, question, more)"
-                    class="input__result" @blur="contentSave($event)"
-                    @keydown.enter="contentSave($event)">
-                    {{ more.result }}
-              </span>
-
+                <input type="text"
+                       class="input__result"
+                       readonly
+                       v-model="more.result"
+                       @contextmenu.prevent.stop="openContextMenu($event, question, more)"
+                       v-mask="'#####'"
+                       @blur="saveContentInput($event, more)"
+                >
             </span>
             </p>
           </li>
@@ -79,6 +78,8 @@ export default {
     let localStore = localStorage.getItem("questions")
     if (localStore) {
       this.questions = JSON.parse(localStore)
+    } else {
+      localStorage.setItem("questions", JSON.stringify(this.questions))
     }
   },
   data() {
@@ -123,34 +124,33 @@ export default {
         let moreIndexElement = this.questions[indexElement].more.findIndex(moreItem => {
           return moreItem === more
         })
-        const result = this.questions[indexElement].more[moreIndexElement].result
+        const result = parseInt(this.questions[indexElement].more[moreIndexElement].result)
         this.$set(this.questions[indexElement].more[moreIndexElement], 'result', operation ? result + 1 : result - 1)
       } else {
-        const result = this.questions[indexElement].result
+        const result = parseInt(this.questions[indexElement].result)
         this.$set(this.questions[indexElement], 'result', operation ? result + 1 : result - 1)
       }
     },
     sumQuestions(question) {
       let sum = 0;
       sum = question.more.reduce((prev, curr) => {
-        return prev + curr.result
+        return prev + Number(curr.result)
       }, 0)
 
-      return sum
+      return (typeof sum) === 'number' ? sum : 0
     },
     formReset() {
       let answer = confirm("Вы уверенны что хотите очистить форму?")
       let questions = []
       if (answer) {
         questions = this.questions = this.questions.map(item => {
-          if (item.result > 0) {
+          if (item.result > 0 || !isNaN(item.result)) {
             item.result = 0
           }
 
           if (item.more) {
             item.more.map(itemMore => {
-              console.log(itemMore)
-              if (itemMore.result > 0) {
+              if (itemMore.result > 0 || !isNaN(itemMore.result)) {
                 itemMore.result = 0
               }
             })
@@ -172,7 +172,7 @@ export default {
       this.$refs.down.click();
     },
     openContextMenu(event, question, more) {
-      let disabled = question.result === 0
+      let disabled = parseInt(question.result) === 0
 
       let contextMenuItem = [
         {
@@ -181,9 +181,9 @@ export default {
           divider: true,
           click: () => {
             const input = event.target
-            console.log(input)
-            input.setAttribute('contenteditable', true)
+            input.removeAttribute('readonly')
             input.focus()
+            input.selectionStart = input.value.length;
           }
         },
         {
@@ -199,13 +199,21 @@ export default {
 
       this.$emit("showContextMenu", event, contextMenuItem)
     },
-    contentSave(event) {
+    saveContentInput(event, question) {
       const input = event.target
-      input.setAttribute('contenteditable', false)
+
+      if(event.target.value.length > 1){
+        question.result = event.target.value = event.target.value.replace(/^0+/, '')
+      }
+
+      if (!event.target.value) {
+        event.target.value = 0
+        question.result = 0
+      }
+
+
+      input.setAttribute('readonly', 'readonly')
     },
-    changeResult(event) {
-      console.log(event)
-    }
   },
   watch: {
     questions: {
@@ -275,15 +283,14 @@ ul {
   border-radius: 3px;
   white-space: nowrap;
   overflow: hidden;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: nowrap;
 }
 
-.input__result-sum:focus-visible {
+.input__result-sum:focus-visible, .input__result:focus-visible{
   outline: none;
+}
+
+.input__result:not([readonly]):focus-visible {
+  border-color: red;
 }
 
 .input__result:hover {
@@ -294,6 +301,7 @@ ul {
   border: 2px solid black;
   cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
 }
+
 
 .footer {
   margin-top: 30px;
@@ -334,6 +342,6 @@ a.hidden {
 
 <style>
 .vue-notification {
-  font-size: 18px;
+  font-size: 18px !important;
 }
 </style>
