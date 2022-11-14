@@ -1,9 +1,19 @@
 <template>
-  <div id="app">
-    <form-questions/>
+  <div id="app" @click="hideContextMenu()" >
+    <form-questions @showContextMenu="showContextMenu"/>
     <footer>
-      <div class="copyright"><a href="http://copyright.ru" target="_blank"><img src="http://copyright.ru/images/TMCIMG/copyright_1.gif" alt ="www.copyright.ru" title ="Copyright защита прав"></a> <span class="name">Николай Матусевич</span> <span>{{new Date().getFullYear()}}</span></div>
+      <div class="copyright"><a href="https://koxa17.github.io/myPortfolio/" target="_blank">&#169;  <span class="name"> {{new Date().getFullYear()}} Николай Матусевич </span></a></div>
     </footer>
+
+    <ki-context
+        ref="kiContext"
+        backgroundColor='#fbfbfb'
+        fontSize='14px'
+        textColor='#35495e'
+        iconColor='#41b883'
+        borderRadius='0.1'
+    />
+
   </div>
 </template>
 
@@ -15,6 +25,14 @@ export default {
   name: 'App',
   components: {
     FormQuestions
+  },
+  methods: {
+    showContextMenu(event, menu) {
+      this.$refs.kiContext.show(event, menu);
+    },
+    hideContextMenu() {
+      this.$refs.kiContext.hide();
+    },
   }
 }
 </script>
@@ -38,20 +56,25 @@ html, body {
 }
 footer {
   padding-top: 10px;
-
 }
 
 .copyright {
   opacity: .5;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 
 .copyright:hover {
   opacity: 1;
+  text-decoration: underline;
 }
 
 .copyright a {
+  color: black;
+  text-decoration: none;
   margin-right: 5px;
 }
 
