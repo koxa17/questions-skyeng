@@ -160,11 +160,17 @@ export default {
 <style scoped>
 h1 {
   text-align: center;
+  margin: 5px 0 0 0;
 }
 
 .form-questions {
   width: 600px;
   margin: 0 auto;
+  flex: 1 1;
+}
+
+.screenshot {
+  padding: 10px;
 }
 
 p {

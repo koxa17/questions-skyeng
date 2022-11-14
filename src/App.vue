@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <form-questions/>
-    <div class="copyright"><a href="http://copyright.ru" target="_blank"><img src="http://copyright.ru/images/TMCIMG/copyright_1.gif" alt ="www.copyright.ru" title ="Copyright защита прав"></a> <span class="name">Николай Матусевич</span> <span>{{new Date().getFullYear()}}</span></div>
+    <footer>
+      <div class="copyright"><a href="http://copyright.ru" target="_blank"><img src="http://copyright.ru/images/TMCIMG/copyright_1.gif" alt ="www.copyright.ru" title ="Copyright защита прав"></a> <span class="name">Николай Матусевич</span> <span>{{new Date().getFullYear()}}</span></div>
+    </footer>
   </div>
 </template>
 
@@ -18,19 +20,28 @@ export default {
 </script>
 
 <style lang="scss">
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+footer {
+  padding-top: 10px;
+
 }
 
 .copyright {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
   opacity: .5;
   display: flex;
   align-items: center;
