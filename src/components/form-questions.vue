@@ -54,7 +54,11 @@
           </li>
         </ul>
       </div>
-      <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+      <div class="wrapper">
+        <input type="text" class="author" v-model="author" />
+        <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+      </div>
+
     </div>
     <div class="footer">
       <button @click="formReset">Очистить форму! <img src="../assets/images/clear_icon.png" alt=""></button>
@@ -75,12 +79,20 @@ export default {
   name: "form-questions",
   props: {},
   mounted() {
-    let localStore = localStorage.getItem("questions")
-    if (localStore) {
-      this.questions = JSON.parse(localStore)
+    let questions = localStorage.getItem("questions")
+
+    if (questions) {
+      this.questions = JSON.parse(questions)
     } else {
       localStorage.setItem("questions", JSON.stringify(this.questions))
     }
+
+    let author = localStorage.getItem("author")
+
+    if(author) {
+      this.author = JSON.parse(author)
+    }
+
   },
   data() {
     return {
@@ -111,7 +123,8 @@ export default {
       ],
       options: {
         divider: true
-      }
+      },
+      author: "Кристина Матусевич"
     }
   },
   methods: {
@@ -202,7 +215,7 @@ export default {
     saveContentInput(event, question) {
       const input = event.target
 
-      if(event.target.value.length > 1){
+      if (event.target.value.length > 1) {
         question.result = event.target.value = event.target.value.replace(/^0+/, '')
       }
 
@@ -221,6 +234,9 @@ export default {
         localStorage.setItem("questions", JSON.stringify(newValue))
       },
       deep: true,
+    },
+    author(newValue) {
+      localStorage.setItem("author", JSON.stringify(newValue))
     }
   }
 }
@@ -285,7 +301,7 @@ ul {
   overflow: hidden;
 }
 
-.input__result-sum:focus-visible, .input__result:focus-visible{
+.input__result-sum:focus-visible, .input__result:focus-visible {
   outline: none;
 }
 
@@ -337,6 +353,22 @@ ul {
 a.hidden {
   display: none;
 }
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.author {
+  font-size: 18px;
+  font-style: italic;
+  flex: 1 1;
+  cursor: pointer;
+  border: none;
+}
+
+
 
 </style>
 
