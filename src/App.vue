@@ -2,7 +2,7 @@
   <div id="app" @click="hideContextMenu()">
     <form-questions @openContextMenu="openContextMenu"/>
     <footer>
-      <div class="copyright"><a href="http://copyright.ru" target="_blank"><img src="http://copyright.ru/images/TMCIMG/copyright_1.gif" alt ="www.copyright.ru" title ="Copyright защита прав"></a> <span class="name">Николай Матусевич</span> <span>{{new Date().getFullYear()}}</span></div>
+      <div class="copyright"><a href="https://koxa17.github.io/myPortfolio/" target="_blank">&#169;  <span class="name"> {{new Date().getFullYear()}} Николай Матусевич </span></a></div>
     </footer>
 
     <ki-context
@@ -76,20 +76,25 @@ html, body {
 }
 footer {
   padding-top: 10px;
-
 }
 
 .copyright {
   opacity: .5;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 5px;
+  margin-left: 5px;
 }
 
 .copyright:hover {
   opacity: 1;
+  text-decoration: underline;
 }
 
 .copyright a {
+  color: black;
+  text-decoration: none;
   margin-right: 5px;
 }
 
