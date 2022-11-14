@@ -1,6 +1,6 @@
 <template>
-  <div id="app" @click="hideContextMenu()">
-    <form-questions @openContextMenu="openContextMenu"/>
+  <div id="app" @click="hideContextMenu()" >
+    <form-questions @showContextMenu="showContextMenu"/>
     <footer>
       <div class="copyright"><a href="https://koxa17.github.io/myPortfolio/" target="_blank">&#169;  <span class="name"> {{new Date().getFullYear()}} Николай Матусевич </span></a></div>
     </footer>
@@ -13,6 +13,7 @@
         iconColor='#41b883'
         borderRadius='0.1'
     />
+
   </div>
 </template>
 
@@ -26,29 +27,8 @@ export default {
     FormQuestions
   },
   methods: {
-    openContextMenu(event, item) {
-      let disabled = item.result === 0
-
-      let contextMenuItem = [
-        {
-          icon: 'fa-pen',
-          text: 'Редактировать',
-          divider: true,
-          click: () => {
-            alert('Option2!')
-          }
-        },
-        {
-          icon: "fa-minus",
-          text: 'Минус 1',
-          disabled: disabled,
-          click: () => {
-            alert('Option0!')
-          }
-        }]
-
-      this.$refs.kiContext.show(event, contextMenuItem);
-
+    showContextMenu(event, menu) {
+      this.$refs.kiContext.show(event, menu);
     },
     hideContextMenu() {
       this.$refs.kiContext.hide();

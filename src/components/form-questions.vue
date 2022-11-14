@@ -13,12 +13,12 @@
                       @click="questionIncrement(question)">Спросила!</button>
               <input
                 type="text" class="input__result" readonly v-model="question.result"
-                @contextmenu.prevent.stop="$emit('openContextMenu', $event, question)">
+                @contextmenu.prevent.stop="openContextMenu($event, question)">
             </span>
           </span>
             <span v-if="question.more">
             <input type="text" class="input__result input__result-sum" readonly
-                   :value="sumQuestions(question)">
+                   :value="sumQuestions(question)" @contextmenu.prevent.stop>
           </span>
           </p>
         </div>
@@ -31,7 +31,7 @@
               <input type="text"
                      class="input__result"
                      readonly
-                     v-model="more.result" @contextmenu.prevent.stop="$emit('openContextMenu', $event, question)">
+                     v-model="more.result" @contextmenu.prevent.stop="openContextMenu($event, question, more)">
             </span>
             </p>
           </li>
@@ -96,7 +96,7 @@ export default {
     }
   },
   methods: {
-    questionIncrement(question, more) {
+    questionIncrement(question, more, operation = true) {
       let indexElement = this.questions.findIndex(item => {
         return item === question
       })
@@ -105,9 +105,11 @@ export default {
         let moreIndexElement = this.questions[indexElement].more.findIndex(moreItem => {
           return moreItem === more
         })
-        this.$set(this.questions[indexElement].more[moreIndexElement], 'result', this.questions[indexElement].more[moreIndexElement].result + 1)
+        const result = this.questions[indexElement].more[moreIndexElement].result
+        this.$set(this.questions[indexElement].more[moreIndexElement], 'result', operation ? result + 1 : result - 1)
       } else {
-        this.$set(this.questions[indexElement], 'result', this.questions[indexElement].result + 1)
+        const result = this.questions[indexElement].result
+        this.$set(this.questions[indexElement], 'result', operation ? result + 1 : result - 1)
       }
     },
     sumQuestions(question) {
@@ -151,6 +153,31 @@ export default {
       this.$refs.down.href = canvas.toDataURL()
       this.$refs.down.click();
     },
+    openContextMenu(event, question, more) {
+      let disabled = question.result === 0
+
+      let contextMenuItem = [
+        {
+          icon: 'fa-pen',
+          text: 'Редактировать',
+          divider: true,
+          click: () => {
+            alert('Option2!')
+          }
+        },
+        {
+          icon: "fa-minus",
+          text: 'Минус 1',
+          disabled: disabled,
+          click: () => {
+            if(question.result > 0 || more.result > 0) {
+              this.questionIncrement(question, more ? more : false, false)
+            }
+          }
+        }]
+
+      this.$emit("showContextMenu", event, contextMenuItem)
+    }
   },
   watch: {
     questions: {
