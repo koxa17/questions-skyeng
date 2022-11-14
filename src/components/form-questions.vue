@@ -3,7 +3,7 @@
   <div class="form-questions">
     <h1>Чек - лист!</h1>
     <div class="screenshot" ref="screenshot">
-      <div class="question" v-for="question in questions" :key="question.id">
+      <div class="question" v-for="(question) in questions" :key="question.id">
         <div class="question-btn">
           <p>
             <span>{{ question.id }}. {{ question.title }}</span>
@@ -11,14 +11,24 @@
             <span v-if="!question.more">
               <button class="btn"
                       @click="questionIncrement(question)">Спросила!</button>
-              <input
-                type="text" class="input__result" readonly v-model="question.result"
-                @contextmenu.prevent.stop="openContextMenu($event, question)">
+              <!--              <input-->
+              <!--                type="text" class="input__result" readonly v-model="question.result"-->
+              <!--                @contextmenu.prevent.stop="openContextMenu($event, question)">-->
+
+              <span @contextmenu.prevent.stop="openContextMenu($event, question)" class="input__result"
+                    @blur="contentSave($event)" @change="changeResult($event)" @keydown.enter="contentSave($event)">
+                {{ question.result }}
+              </span>
             </span>
           </span>
             <span v-if="question.more">
-            <input type="text" class="input__result input__result-sum" readonly
-                   :value="sumQuestions(question)" @contextmenu.prevent.stop>
+<!--            <input type="text" class="input__result input__result-sum" readonly-->
+              <!--                   :value="sumQuestions(question)" @contextmenu.prevent.stop>-->
+
+              <span @contextmenu.prevent.stop class="input__result input__result-sum">
+                {{ sumQuestions(question) }}
+              </span>
+
           </span>
           </p>
         </div>
@@ -28,10 +38,18 @@
               <span>{{ more.title }}</span>
               <span>
               <button class="btn" @click="questionIncrement(question, more)">Спросила!</button>
-              <input type="text"
-                     class="input__result"
-                     readonly
-                     v-model="more.result" @contextmenu.prevent.stop="openContextMenu($event, question, more)">
+                <!--              <input type="text"-->
+                <!--                     class="input__result"-->
+                <!--                     readonly-->
+                <!--                     v-model="more.result" @contextmenu.prevent.stop="openContextMenu($event, question, more)">-->
+
+                <span
+                    @contextmenu.prevent.stop="openContextMenu($event, question, more)"
+                    class="input__result" @blur="contentSave($event)"
+                    @keydown.enter="contentSave($event)">
+                    {{ more.result }}
+              </span>
+
             </span>
             </p>
           </li>
@@ -162,7 +180,10 @@ export default {
           text: 'Редактировать',
           divider: true,
           click: () => {
-            alert('Option2!')
+            const input = event.target
+            console.log(input)
+            input.setAttribute('contenteditable', true)
+            input.focus()
           }
         },
         {
@@ -170,13 +191,20 @@ export default {
           text: 'Минус 1',
           disabled: disabled,
           click: () => {
-            if(question.result > 0 || more.result > 0) {
+            if (question.result > 0 || more.result > 0) {
               this.questionIncrement(question, more ? more : false, false)
             }
           }
         }]
 
       this.$emit("showContextMenu", event, contextMenuItem)
+    },
+    contentSave(event) {
+      const input = event.target
+      input.setAttribute('contenteditable', false)
+    },
+    changeResult(event) {
+      console.log(event)
     }
   },
   watch: {
@@ -232,8 +260,6 @@ button {
   cursor: pointer;
 }
 
-
-
 ul {
   padding-left: 50px;
   margin: 30px 0;
@@ -247,19 +273,24 @@ ul {
   font-weight: bold;
   border: 2px solid gray;
   border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
 }
-
-
 
 .input__result-sum:focus-visible {
   outline: none;
 }
 
-input.input__result:hover {
+.input__result:hover {
   cursor: default;
 }
 
-input.input__result:not(.input__result-sum):hover {
+.input__result:not(.input__result-sum):hover {
   border: 2px solid black;
   cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
 }
