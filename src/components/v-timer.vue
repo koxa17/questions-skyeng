@@ -129,7 +129,14 @@ export default {
       localStorage.setItem(key, JSON.stringify(data))
     }
   },
-  watch: {}
+  watch: {
+    time: {
+      handler(newValue){
+        this.saveStorage(this.timerId, newValue)
+      },
+        deep: true
+    }
+  }
 }
 </script>
 
