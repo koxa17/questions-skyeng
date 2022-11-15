@@ -1,6 +1,6 @@
 <template>
   <div id="app" @click="hideContextMenu()" >
-    <form-questions @showContextMenu="showContextMenu"/>
+    <form-questions @showContextMenu="showContextMenu" @showContextMenuTimer="showContextMenuTimer"/>
     <footer>
       <div class="copyright"><a href="https://koxa17.github.io/myPortfolio/" target="_blank">&#169;  <span class="name"> {{new Date().getFullYear()}} Николай Матусевич </span></a></div>
     </footer>
@@ -30,6 +30,9 @@ export default {
     showContextMenu(event, menu) {
       this.$refs.kiContext.show(event, menu);
     },
+    showContextMenuTimer(event, menu) {
+      this.$refs.kiContext.show(event, menu);
+    },
     hideContextMenu() {
       this.$refs.kiContext.hide();
     },
@@ -49,16 +52,15 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   margin: 0;
-  height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 footer {
   padding-top: 10px;
 }
 
 .copyright {
-  opacity: .5;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -66,7 +68,7 @@ footer {
   margin-left: 5px;
 }
 
-.copyright:hover {
+.copyright a:hover {
   opacity: 1;
   text-decoration: underline;
 }
@@ -75,6 +77,7 @@ footer {
   color: black;
   text-decoration: none;
   margin-right: 5px;
+  opacity: .5;
 }
 
 .copyright .name{
