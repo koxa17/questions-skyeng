@@ -58,6 +58,7 @@ html, body {
 }
 footer {
   padding-top: 10px;
+  font-size: 12px;
 }
 
 .copyright {

@@ -246,7 +246,7 @@ export default {
       this.$refs.down.click();
     },
     openContextMenu(event, question, more) {
-      let disabled = parseInt(question.result) === 0
+      let disabled = parseInt(question.result || more.result) === 0
 
       let contextMenuItem = [
         {
