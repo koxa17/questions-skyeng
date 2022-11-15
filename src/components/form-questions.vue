@@ -10,7 +10,7 @@
             <span>
             <span v-if="!question.more">
               <button class="btn"
-                      @click="questionIncrement(question)">Спросила!
+                      @click="questionIncrement(question)">Спросил(а)!
               </button>
               <input
                   type="text"
@@ -40,7 +40,7 @@
             <p>
               <span>{{ more.title }}</span>
               <span>
-              <button class="btn" @click="questionIncrement(question, more)">Спросила!</button>
+              <button class="btn" @click="questionIncrement(question, more)">Спросил(а)!</button>
                 <input type="text"
                        class="input__result"
                        readonly
