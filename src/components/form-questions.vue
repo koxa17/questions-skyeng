@@ -10,7 +10,7 @@
             <span>
             <span v-if="!question.more">
               <button class="btn"
-                      @click="questionIncrement(question)">Спросил(а)!
+                      @click="questionIncrement(question)">Спросил(а)
               </button>
               <input
                   type="text"
@@ -31,7 +31,6 @@
                 :value="sumQuestions(question)"
                 @contextmenu.prevent.stop
             >
-
           </span>
           </p>
         </div>
@@ -40,7 +39,7 @@
             <p>
               <span>{{ more.title }}</span>
               <span>
-              <button class="btn" @click="questionIncrement(question, more)">Спросил(а)!</button>
+              <button class="btn" @click="questionIncrement(question, more)">Спросил(а)</button>
                 <input type="text"
                        class="input__result"
                        readonly
@@ -55,18 +54,46 @@
         </ul>
       </div>
       <div class="wrapper">
-        <input type="text" class="author" v-model="author" />
+        <input type="text" class="author" v-model="author"/>
         <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
       </div>
 
     </div>
     <div class="footer">
-      <button @click="formReset">Очистить форму! <img src="../assets/images/clear_icon.png" alt=""></button>
-      <button @click="getScreenshot($event)">Скриншот! <img src="../assets/images/screenshot_icon.png" alt=""></button>
+      <button @click="formReset">Очистить форму <img src="../assets/images/clear_icon.png" alt=""></button>
+      <button @click="getScreenshot($event)">Скриншот <img src="../assets/images/screenshot_icon.png" alt=""></button>
       <a href="#" ref="down" class="hidden">скачать</a>
     </div>
 
-    <notifications position="bottom right"/>
+    <div class="timers" :class="{'timers-close': !timers}">
+      <div class="icon__close" :class="{'icon__close-open': !timers}" @click="toggleTimers">
+        <font-awesome-icon v-if="timers" icon="fa-circle-xmark"/>
+        <div v-else class="icon__open">Показать таймер <font-awesome-icon  icon="fa-clock-four" /></div>
+      </div>
+
+
+
+        <v-timer
+            v-show="timers"
+            btn-run="Личный перерыв"
+            btn-pause="Работаю"
+            title-timer="Личный перерыв"
+            @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
+            timer-id="break"
+        />
+
+        <v-timer
+            v-show="timers"
+            btn-run="Не работаю"
+            btn-pause="Работаю"
+            title-timer="Не работаю"
+            @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
+            timer-id="work"
+        />
+
+
+    </div>
+
 
   </div>
 
@@ -74,11 +101,17 @@
 
 <script>
 import html2canvas from 'html2canvas';
+import VTimer from "@/components/v-timer";
+
 export default {
   name: "form-questions",
+  components: {VTimer},
   props: {},
   mounted() {
     let questions = localStorage.getItem("questions")
+    let author = localStorage.getItem("author")
+    let showTimers = localStorage.getItem("showTimers")
+
 
     if (questions) {
       this.questions = JSON.parse(questions)
@@ -86,10 +119,16 @@ export default {
       localStorage.setItem("questions", JSON.stringify(this.questions))
     }
 
-    let author = localStorage.getItem("author")
 
-    if(author) {
+
+    if (author) {
       this.author = JSON.parse(author)
+    }
+
+    if(showTimers.length) {
+      this.timers = JSON.parse(showTimers)
+    } else {
+      localStorage.setItem("showTimers", JSON.stringify(this.timers))
     }
 
   },
@@ -123,7 +162,8 @@ export default {
       options: {
         divider: true
       },
-      author: "Кристина Матусевич"
+      author: "Кристина Матусевич",
+      timers: false,
     }
   },
   methods: {
@@ -173,9 +213,11 @@ export default {
         this.$set(this.questions, '', questions)
         localStorage.setItem("questions", JSON.stringify(questions))
 
-        this.$awn.success("Форма была очищенна!", {labels: {
-          success: ''
-        } })
+        this.$awn.success("Форма была очищенна!", {
+          labels: {
+            success: ''
+          }
+        })
 
       };
 
@@ -204,7 +246,7 @@ export default {
       this.$refs.down.click();
     },
     openContextMenu(event, question, more) {
-      let disabled = parseInt(question.result) === 0
+      let disabled = parseInt(question.result || more.result) === 0
 
       let contextMenuItem = [
         {
@@ -246,6 +288,10 @@ export default {
 
       input.setAttribute('readonly', 'readonly')
     },
+    toggleTimers() {
+      this.timers = !this.timers
+      localStorage.setItem('showTimers', JSON.stringify(this.timers))
+    }
   },
   watch: {
     questions: {
@@ -261,7 +307,8 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+
 h1 {
   text-align: center;
   margin: 5px 0 0 0;
@@ -362,6 +409,8 @@ ul {
   cursor: pointer;
   background: none;
   font-size: 14px;
+  width: 165px;
+  justify-content: center;
 }
 
 .footer button:hover {
@@ -396,12 +445,44 @@ a.hidden {
   border: none;
 }
 
+.timers {
+  display: flex;
+  justify-content: space-around;
+  border: 2px solid black;
+  border-radius: 10px;
+  margin-top: 15px;
+  padding: 10px;
+  position: relative;
+
+  & .timers-close {
+    border-color: transparent;
+  }
+
+  &.timers-close {
+    border: none;
+  }
+  & .icon__close {
+    position: absolute;
+    left: 10px;
+    cursor: pointer;
+    &.icon__close-open {
+      left: 0;
+    }
+  }
+
+  & .icon__open {
+    border: 2px solid black;
+    padding: 6px;
+    border-radius: 10px;
+  }
+}
+
 
 
 </style>
 
 <style>
-.awn-toast-content{
+.awn-toast-content {
   font-size: 18px;
 }
 </style>

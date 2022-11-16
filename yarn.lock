@@ -1027,7 +1027,7 @@
 
 "@fortawesome/vue-fontawesome@^2.0.9":
   version "2.0.9"
-  resolved "https://registry.npmjs.org/@fortawesome/vue-fontawesome/-/vue-fontawesome-2.0.9.tgz"
+  resolved "https://registry.yarnpkg.com/@fortawesome/vue-fontawesome/-/vue-fontawesome-2.0.9.tgz#7df35818135be54fd87568f16ec7b998a3d0cce8"
   integrity sha512-tUmO92PFHbLOplitjHNBVGMJm6S57vp16tBXJVPKSI/6CfjrgLycqKxEpC6f7qsOqUdoXs5nIv4HLUfrOMHzuw==
 
 "@hapi/hoek@^9.0.0":
