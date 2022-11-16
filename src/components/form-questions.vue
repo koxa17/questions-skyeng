@@ -1,7 +1,7 @@
 <template>
 
   <div class="form-questions">
-    <h1>Чек - лист!</h1>
+    <h1>Check-list!</h1>
     <div class="screenshot" ref="screenshot">
       <div class="question" v-for="(question) in questions" :key="question.id">
         <div class="question-btn">
@@ -265,6 +265,7 @@ export default {
 h1 {
   text-align: center;
   margin: 5px 0 0 0;
+  font-family: 'Kaushan Script', cursive;
 }
 
 .form-questions {
@@ -279,6 +280,7 @@ h1 {
 
 p {
   overflow: hidden;
+  font-family: 'Kaushan Script', cursive;
 }
 
 p:after {
@@ -301,6 +303,11 @@ p span:last-of-type {
 button {
   padding: 3px 10px;
   cursor: pointer;
+  padding: 3px 10px;
+    background-color: #0fedf387;
+    border-color: aquamarine;
+    border-radius: 5px;
+     font-family: 'Kaushan Script', cursive;
 }
 
 ul {
@@ -318,6 +325,8 @@ ul {
   border-radius: 3px;
   white-space: nowrap;
   overflow: hidden;
+  border: 2px solid #08dfe7;
+  
 }
 
 .input__result-sum:focus-visible, .input__result:focus-visible {
