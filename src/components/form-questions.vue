@@ -1,95 +1,66 @@
 <template>
 
   <div class="form-questions">
-    <h1>Чек - лист!</h1>
+
+    <h1>
+      <span @contextmenu.prevent.stop="openResetList">Check-list!</span>
+    </h1>
     <div class="screenshot" ref="screenshot">
-      <div class="question" v-for="(question) in questions" :key="question.id">
-        <div class="question-btn">
-          <p>
-            <span>{{ question.id }}. {{ question.title }}</span>
-            <span>
-            <span v-if="!question.more">
-              <button class="btn"
-                      @click="questionIncrement(question)">Спросил(а)
-              </button>
-              <input
-                  type="text"
-                  class="input__result"
-                  readonly
-                  v-model="question.result"
-                  @contextmenu.prevent.stop="openContextMenu($event, question)"
-                  v-mask="'#####'"
-                  @blur="saveContentInput($event, question)"
-              >
-            </span>
-          </span>
-            <span v-if="question.more">
-            <input
-                type="text"
-                class="input__result input__result-sum"
-                readonly
-                :value="sumQuestions(question)"
-                @contextmenu.prevent.stop
-            >
-          </span>
-          </p>
-        </div>
-        <ul v-if="question.more">
-          <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
-            <p>
-              <span>{{ more.title }}</span>
-              <span>
-              <button class="btn" @click="questionIncrement(question, more)">Спросил(а)</button>
-                <input type="text"
-                       class="input__result"
-                       readonly
-                       v-model="more.result"
-                       @contextmenu.prevent.stop="openContextMenu($event, question, more)"
-                       v-mask="'#####'"
-                       @blur="saveContentInput($event, more)"
-                >
-            </span>
-            </p>
-          </li>
-        </ul>
+
+      <question-item
+          :questions="questions"
+          @onClick="(question, more) => questionIncrement(question, more)"
+          @onContext="(event, question, more) => openContextMenu(event, question, more)"
+          @onBlur="(event, question) => saveContentInput(event, question)"
+      />
+
+
+      <div class="options-btns" ref="hide_on_screenshot">
+        <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
       </div>
+
+
       <div class="wrapper">
         <input type="text" class="author" v-model="author"/>
-        <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+        <div>
+          <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+        </div>
       </div>
 
     </div>
-    <div class="footer">
-      <button @click="formReset">Очистить форму <img src="../assets/images/clear_icon.png" alt=""></button>
+    <div class="questions__buttons">
+      <button @click="formReset">Очистить <img src="../assets/images/clear_icon.png" alt=""></button>
       <button @click="getScreenshot($event)">Скриншот <img src="../assets/images/screenshot_icon.png" alt=""></button>
       <a href="#" ref="down" class="hidden">скачать</a>
     </div>
 
+
     <div class="timers" :class="{'timers-close': !timers}">
       <div class="icon__close" :class="{'icon__close-open': !timers}" @click="toggleTimers">
         <font-awesome-icon v-if="timers" icon="fa-circle-xmark"/>
-        <div v-else class="icon__open">Показать таймер <font-awesome-icon  icon="fa-clock-four" /></div>
+        <div v-else class="icon__open">Показать таймер
+          <font-awesome-icon icon="fa-clock-four"/>
+        </div>
       </div>
 
 
+      <v-timer
+          v-show="timers"
+          btn-run="Личный перерыв"
+          btn-pause="Работаю"
+          title-timer="Личный перерыв"
+          @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
+          timer-id="break"
+      />
 
-        <v-timer
-            v-show="timers"
-            btn-run="Личный перерыв"
-            btn-pause="Работаю"
-            title-timer="Личный перерыв"
-            @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
-            timer-id="break"
-        />
-
-        <v-timer
-            v-show="timers"
-            btn-run="Не работаю"
-            btn-pause="Работаю"
-            title-timer="Не работаю"
-            @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
-            timer-id="work"
-        />
+      <v-timer
+          v-show="timers"
+          btn-run="Не работаю"
+          btn-pause="Работаю"
+          title-timer="Не работаю"
+          @showContextMenuTimer="(event, contextMenuItem)=> $emit('showContextMenuTimer', event, contextMenuItem)"
+          timer-id="work"
+      />
 
 
     </div>
@@ -102,63 +73,39 @@
 <script>
 import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
+import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
+import QuestionItem from "@/components/question-item";
+import {questionsDefault} from "@/data/script";
 
 export default {
   name: "form-questions",
-  components: {VTimer},
+  components: {QuestionItem, VTimer},
   props: {},
   mounted() {
-    let questions = localStorage.getItem("questions")
-    let author = localStorage.getItem("author")
-    let showTimers = localStorage.getItem("showTimers")
+    let questions = getDataFromLocalStorage("questions")
+    let author = getDataFromLocalStorage("author")
+    let showTimers = getDataFromLocalStorage("showTimers")
 
 
     if (questions) {
-      this.questions = JSON.parse(questions)
+      this.questions = questions
     } else {
-      localStorage.setItem("questions", JSON.stringify(this.questions))
+      saveDataToLocalStorage("questions", this.questions)
     }
-
 
 
     if (author) {
-      this.author = JSON.parse(author)
+      this.author = author
     }
 
-    if(showTimers.length) {
-      this.timers = JSON.parse(showTimers)
-    } else {
-      localStorage.setItem("showTimers", JSON.stringify(this.timers))
+    if (showTimers) {
+      this.timers = showTimers
     }
 
   },
   data() {
     return {
-      questions: [
-        {id: 1, title: "Уточнил Имя клиента", result: 0},
-        {id: 2, title: "Задал открытый вопрос", result: 0},
-        {id: 3, title: "Задал вопрос на цель использования", result: 0},
-        {id: 4, title: "В презентации рассказал о 2-х прейиуществах", result: 0},
-        {
-          id: 5, title: "Отработка возражения №1:",
-          more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
-          ]
-        },
-        {
-          id: 6, title: "Отработка возражения №2:",
-          more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
-          ],
-        },
-        {id: 7, title: "Спросил про детей!", result: 0},
-        {id: 8, title: "Озвучил Акцию", result: 0},
-        {id: 9, title: "Попрощался!", result: 0},
-      ],
+      questions: questionsDefault,
       options: {
         divider: true
       },
@@ -183,14 +130,6 @@ export default {
         this.$set(this.questions[indexElement], 'result', operation ? result + 1 : result - 1)
       }
     },
-    sumQuestions(question) {
-      let sum = 0;
-      sum = question.more.reduce((prev, curr) => {
-        return prev + Number(curr.result)
-      }, 0)
-
-      return (typeof sum) === 'number' ? sum : 0
-    },
     formReset() {
       let questions = []
       let onOk = () => {
@@ -211,7 +150,7 @@ export default {
           return item
         })
         this.$set(this.questions, '', questions)
-        localStorage.setItem("questions", JSON.stringify(questions))
+        saveDataToLocalStorage("questions", questions)
 
         this.$awn.success("Форма была очищенна!", {
           labels: {
@@ -221,17 +160,13 @@ export default {
 
       };
 
-      let onCancel = () => {
-
-      };
-
       this.$awn.confirm(
           "Вы уверенны что хотите очистить форму?",
           onOk,
-          onCancel,
+          () => {},
           {
             labels: {
-              confirm: '',
+              confirm: 'Очиска формы',
               confirmOk: "Да",
               confirmCancel: 'Отмена'
             }
@@ -240,13 +175,18 @@ export default {
 
     },
     async getScreenshot() {
+      playAudio()
       const canvas = await html2canvas(this.$refs.screenshot)
       this.$refs.down.download = 'filename.png';
       this.$refs.down.href = canvas.toDataURL()
       this.$refs.down.click();
     },
     openContextMenu(event, question, more) {
-      let disabled = parseInt(question.result || more.result) === 0
+      let disabled = parseInt(question.result) === 0
+
+      if(more) {
+        disabled = parseInt(more.result) === 0
+      }
 
       let contextMenuItem = [
         {
@@ -290,18 +230,60 @@ export default {
     },
     toggleTimers() {
       this.timers = !this.timers
-      localStorage.setItem('showTimers', JSON.stringify(this.timers))
+      if (this.timers) {
+        saveDataToLocalStorage('showTimers', true)
+      } else {
+        removeKeyLocalStorage('showTimers')
+      }
+
+    },
+    openResetList(event) {
+      let thisRoot = this
+      let contextMenuItem = [
+        {
+          icon: 'fa-eraser',
+          text: 'Сбросить список',
+          divider: true,
+          click: () => {
+            this.$awn.confirm(
+                "Вы уверенны что хотите сбросить список?",
+                onOk,
+                () => {},
+                {
+                  labels: {
+                    confirm: 'Сброс списка',
+                    confirmOk: "Да",
+                    confirmCancel: 'Отмена'
+                  }
+                }
+            )
+
+            function onOk() {
+              thisRoot.questions = questionsDefault;
+
+              thisRoot.$awn.success("Список был сброшен!", {
+                labels: {
+                  success: ''
+                }
+              })
+
+            }
+
+          }
+        }
+      ]
+      this.$emit("showContextMenu", event, contextMenuItem)
     }
   },
   watch: {
     questions: {
       handler(newValue) {
-        localStorage.setItem("questions", JSON.stringify(newValue))
+        saveDataToLocalStorage("questions", newValue)
       },
       deep: true,
     },
     author(newValue) {
-      localStorage.setItem("author", JSON.stringify(newValue))
+      saveDataToLocalStorage("author", newValue)
     }
   }
 }
@@ -309,109 +291,56 @@ export default {
 
 <style scoped lang="scss">
 
-h1 {
-  text-align: center;
-  margin: 5px 0 0 0;
-}
 
 .form-questions {
   width: 600px;
-  margin: 0 auto;
+  margin: 0 auto 15px auto;
   flex: 1 1;
+
+  & h1 {
+    text-align: center;
+    margin: 5px 0 0 0;
+    font-family: 'Kaushan Script', cursive;
+
+    span {
+      cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
+    }
+  }
 }
 
 .screenshot {
   padding: 10px;
 }
 
-p {
-  overflow: hidden;
-}
 
-p:after {
-  content: '...................................................................................................................................';
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-p span:first-of-type {
-  float: left;
-  cursor: pointer;
-}
-
-p span:last-of-type {
-  float: right;
-  margin-left: 10px;
-}
-
-button {
-  padding: 3px 10px;
-  cursor: pointer;
-}
-
-ul {
-  padding-left: 50px;
-  margin: 30px 0;
-}
-
-.input__result {
-  width: 40px;
-  margin-left: 10px;
-  text-align: center;
-  height: 20px;
-  font-weight: bold;
-  border: 2px solid gray;
-  border-radius: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.input__result-sum:focus-visible, .input__result:focus-visible {
-  outline: none;
-}
-
-.input__result:not([readonly]):focus-visible {
-  border-color: red;
-}
-
-.input__result:hover {
-  cursor: default;
-}
-
-.input__result:not(.input__result-sum):hover {
-  border: 2px solid black;
-  cursor: url("https://i.stack.imgur.com/ygtZg.png"), auto;
-}
-
-
-.footer {
+.questions__buttons {
   margin-top: 30px;
   display: flex;
   align-items: start;
   justify-content: space-between;
+
+  & button {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+    background: none;
+    font-size: 14px;
+    justify-content: center;
+    flex-basis: 33%;
+  }
+
+  & button:hover {
+    background: rgba(128, 128, 128, 0.35);
+  }
+
+  & button img {
+    width: 25px;
+    margin-left: 10px;
+  }
 }
 
-.footer button {
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  border-radius: 10px;
-  cursor: pointer;
-  background: none;
-  font-size: 14px;
-  width: 165px;
-  justify-content: center;
-}
-
-.footer button:hover {
-  background: rgba(128, 128, 128, 0.35);
-}
-
-.footer button img {
-  width: 25px;
-  margin-left: 5px;
-}
 
 .date {
   font-size: 18px;
@@ -452,10 +381,12 @@ a.hidden {
   &.timers-close {
     border: none;
   }
+
   & .icon__close {
     position: absolute;
     left: 10px;
     cursor: pointer;
+
     &.icon__close-open {
       left: 0;
     }
@@ -468,7 +399,26 @@ a.hidden {
   }
 }
 
+.options-btns {
+  width: 100%;
+  margin-bottom: 5px;
+  text-align: right;
+}
 
+.btn-add {
+  width: 42px;
+  height: 26px;
+  border: 1px solid black;
+  opacity: .4;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.hide_on_screenshot {
+  display: none;
+}
 
 </style>
 
