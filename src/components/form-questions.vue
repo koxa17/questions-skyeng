@@ -14,9 +14,17 @@
           @onBlur="(event, question) => saveContentInput(event, question)"
       />
 
+
+            <div class="options-btns">
+              <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
+            </div>
+
+
       <div class="wrapper">
         <input type="text" class="author" v-model="author"/>
-        <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+        <div>
+          <div class="date">{{ new Date().toLocaleDateString() }}.г</div>
+        </div>
       </div>
 
     </div>
@@ -25,7 +33,6 @@
       <button @click="getScreenshot($event)">Скриншот <img src="../assets/images/screenshot_icon.png" alt=""></button>
       <a href="#" ref="down" class="hidden">скачать</a>
     </div>
-
 
 
     <div class="timers" :class="{'timers-close': !timers}">
@@ -66,7 +73,7 @@
 <script>
 import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
-import {playAudio} from "@/assets/tools/script";
+import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
 import QuestionItem from "@/components/question-item";
 import {questionsDefault} from "@/data/script";
 
@@ -75,56 +82,30 @@ export default {
   components: {QuestionItem, VTimer},
   props: {},
   mounted() {
-    let questions = localStorage.getItem("questions")
-    let author = localStorage.getItem("author")
-    let showTimers = localStorage.getItem("showTimers")
+    let questions = getDataFromLocalStorage("questions")
+    let author = getDataFromLocalStorage("author")
+    let showTimers = getDataFromLocalStorage("showTimers")
 
 
     if (questions) {
-      this.questions = JSON.parse(questions)
+      this.questions = questions
     } else {
-      localStorage.setItem("questions", JSON.stringify(this.questions))
+      saveDataToLocalStorage("questions", this.questions)
     }
 
 
     if (author) {
-      this.author = JSON.parse(author)
+      this.author = author
     }
 
-    if (showTimers.length) {
-      this.timers = JSON.parse(showTimers)
-    } else {
-      localStorage.setItem("showTimers", JSON.stringify(this.timers))
+    if (showTimers) {
+      this.timers = showTimers
     }
 
   },
   data() {
     return {
-      questions: [
-        {id: 1, title: "Уточнил Имя клиента", result: 0},
-        {id: 2, title: "Задал открытый вопрос", result: 0},
-        {id: 3, title: "Задал вопрос на цель использования", result: 0},
-        {id: 4, title: "В презентации рассказал о 2-х прейиуществах", result: 0},
-        {
-          id: 5, title: "Отработка возражения №1:",
-          more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
-          ]
-        },
-        {
-          id: 6, title: "Отработка возражения №2:",
-          more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
-          ],
-        },
-        {id: 7, title: "Спросил про детей!", result: 0},
-        {id: 8, title: "Озвучил Акцию", result: 0},
-        {id: 9, title: "Попрощался!", result: 0},
-      ],
+      questions: questionsDefault,
       options: {
         divider: true
       },
@@ -169,7 +150,7 @@ export default {
           return item
         })
         this.$set(this.questions, '', questions)
-        localStorage.setItem("questions", JSON.stringify(questions))
+        saveDataToLocalStorage("questions", questions)
 
         this.$awn.success("Форма была очищенна!", {
           labels: {
@@ -179,17 +160,13 @@ export default {
 
       };
 
-      let onCancel = () => {
-
-      };
-
       this.$awn.confirm(
           "Вы уверенны что хотите очистить форму?",
           onOk,
-          onCancel,
+          () => {},
           {
             labels: {
-              confirm: '',
+              confirm: 'Очиска формы',
               confirmOk: "Да",
               confirmCancel: 'Отмена'
             }
@@ -249,16 +226,46 @@ export default {
     },
     toggleTimers() {
       this.timers = !this.timers
-      localStorage.setItem('showTimers', JSON.stringify(this.timers))
+      if (this.timers) {
+        saveDataToLocalStorage('showTimers', true)
+      } else {
+        removeKeyLocalStorage('showTimers')
+      }
+
     },
     openResetList(event) {
+      let thisRoot = this
       let contextMenuItem = [
         {
           icon: 'fa-eraser',
           text: 'Сбросить список',
           divider: true,
           click: () => {
-            this.questions = questionsDefault
+            this.$awn.confirm(
+                "Вы уверенны что хотите сбросить список?",
+                onOk,
+                () => {},
+                {
+                  labels: {
+                    confirm: 'Сброс списка',
+                    confirmOk: "Да",
+                    confirmCancel: 'Отмена'
+                  }
+                }
+            )
+
+            function onOk() {
+              debugger;
+              thisRoot.questions = questionsDefault;
+
+              thisRoot.$awn.success("Список был сброшен!", {
+                labels: {
+                  success: ''
+                }
+              })
+
+            }
+
           }
         }
       ]
@@ -268,19 +275,18 @@ export default {
   watch: {
     questions: {
       handler(newValue) {
-        localStorage.setItem("questions", JSON.stringify(newValue))
+        saveDataToLocalStorage("questions", newValue)
       },
       deep: true,
     },
     author(newValue) {
-      localStorage.setItem("author", JSON.stringify(newValue))
+      saveDataToLocalStorage("author", newValue)
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
-
 
 
 .form-questions {
@@ -292,6 +298,7 @@ export default {
     text-align: center;
     margin: 5px 0 0 0;
     font-family: 'Kaushan Script', cursive;
+
     span {
       cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
     }
@@ -389,6 +396,22 @@ a.hidden {
   }
 }
 
+.options-btns {
+  width: 100%;
+  margin-bottom: 5px;
+  text-align: right;
+}
+
+.btn-add {
+  width: 42px;
+  height: 26px;
+  border: 1px solid black;
+  opacity: .4;
+
+  &:hover {
+    opacity: 1;
+  }
+}
 
 </style>
 
