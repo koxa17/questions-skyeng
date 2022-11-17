@@ -2,7 +2,12 @@
   <div id="app" @click="hideContextMenu()" >
     <form-questions @showContextMenu="showContextMenu" @showContextMenuTimer="showContextMenuTimer"/>
     <footer>
-      <div class="copyright"><a href="https://koxa17.github.io/myPortfolio/" target="_blank">&#169;  <span class="name"> {{new Date().getFullYear()}} Николай Матусевич </span></a></div>
+      <div class="copyright">
+        <a href="https://koxa17.github.io/myPortfolio/" target="_blank">
+          &#169;
+          <span class="name"> {{new Date().getFullYear() === 2022 ?  '2022' : `2022 - ${new Date().getFullYear()}`}} Николай Матусевич </span>
+        </a>
+      </div>
     </footer>
 
     <ki-context
