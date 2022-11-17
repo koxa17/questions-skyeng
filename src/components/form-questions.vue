@@ -174,12 +174,30 @@ export default {
       )
 
     },
-    async getScreenshot() {
+    async getScreenshot(event) {
+      const target = event.target
+      let btn = target
+      let hideBtn = this.$refs.hide_on_screenshot
+      hideBtn.classList.add('hide_on_screenshot')
+
       playAudio()
+
+      if(event.target !== 'button') {
+        btn = target.closest('button')
+      }
+
+      btn.setAttribute('disabled', 'disabled')
+
       const canvas = await html2canvas(this.$refs.screenshot)
       this.$refs.down.download = 'filename.png';
       this.$refs.down.href = canvas.toDataURL()
       this.$refs.down.click();
+
+      setTimeout(() => {
+        hideBtn.classList.remove('hide_on_screenshot')
+        btn.removeAttribute('disabled')
+      }, 1000)
+
     },
     openContextMenu(event, question, more) {
       let disabled = parseInt(question.result) === 0
