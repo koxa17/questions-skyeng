@@ -15,9 +15,9 @@
       />
 
 
-            <div class="options-btns">
-              <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
-            </div>
+      <div class="options-btns" ref="hide_on_screenshot">
+        <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
+      </div>
 
 
       <div class="wrapper">
@@ -414,6 +414,10 @@ a.hidden {
   &:hover {
     opacity: 1;
   }
+}
+
+.hide_on_screenshot {
+  display: none;
 }
 
 </style>
