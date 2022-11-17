@@ -8,12 +8,13 @@
     <ki-context
         ref="kiContext"
         backgroundColor='#fbfbfb'
-        fontSize='14px'
+        fontSize='15px'
         textColor='#35495e'
         iconColor='#41b883'
         borderRadius='0.1'
+        maxWidth='15em'
     />
-
+    <audio src="./assets/audio/screenshot__sound.ogg" id="sound"></audio>
   </div>
 </template>
 
@@ -41,11 +42,16 @@ export default {
 </script>
 
 <style lang="scss">
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -165,6 +165,10 @@ export default {
   margin-top: 10px;
   width: 116px;
   text-align: center;
+  &:hover {
+    cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
+    border-color: #0057ec;
+  }
 }
 
 .btn {
