@@ -1,12 +1,15 @@
 <template>
   <div>
-    <div v-for="question in questions" :key="question.id" :class="{'mt-30': question.more}">
-      <p class="question__item">
+    <transition-group name="list" tag="p">
+      <div v-for="(question, idx) in questions" :key="question.id" :class="{'mt-30': question.more}">
+        <p class="question__item">
         <span class="question__item__text">
-          <span class="question__item__text__number">{{ question.id }}.</span>
-          <span class="question__item__text--editable" contenteditable="false"  @dblclick="contentEditableOnChange($event)" @blur="contentEditableBlur($event, question)">{{ question.title }}</span>
+          <span class="question__item__text__number">{{ idx + 1 }}.</span>
+          <span class="question__item__text--editable" contenteditable="false"
+                @dblclick="contentEditableOnChange($event)"
+                @blur="contentEditableBlur($event, question)">{{ question.title }}</span>
         </span>
-        <span>
+          <span>
             <span v-if="!question.more">
               <button class="btn"
                       @click="$emit('onClick', question)">Спросил(а)
@@ -22,7 +25,7 @@
               >
             </span>
           </span>
-        <span v-if="question.more">
+          <span v-if="question.more">
             <input
                 type="text"
                 class="input__result input__result-sum"
@@ -31,14 +34,14 @@
                 @contextmenu.prevent.stop
             >
           </span>
-      </p>
+        </p>
 
-      <ul v-if="question.more">
-        <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
-          <p class="question__item">
-            <span class="question__item__text">{{ more.title }}</span>
-            <span>
-              <button class="btn"  @click="$emit('onClick', question, more)">Спросил(а)</button>
+        <ul v-if="question.more">
+          <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
+            <p class="question__item">
+              <span class="question__item__text">{{ more.title }}</span>
+              <span>
+              <button class="btn" @click="$emit('onClick', question, more)">Спросил(а)</button>
                 <input type="text"
                        class="input__result"
                        readonly
@@ -48,10 +51,11 @@
                        @blur="$emit('onBlur', $event, more)"
                 >
             </span>
-          </p>
-        </li>
-      </ul>
-    </div>
+            </p>
+          </li>
+        </ul>
+      </div>
+    </transition-group>
   </div>
 </template>
 
@@ -103,7 +107,8 @@ export default {
 
   &__text {
     margin-right: 7px;
-    &-input{
+
+    &-input {
       border: 2px solid transparent;
     }
 
@@ -113,6 +118,7 @@ export default {
 
     &--editable {
       cursor: pointer;
+
       &[contenteditable="true"] {
         padding: 5px 10px;
         cursor: text;
@@ -122,20 +128,19 @@ export default {
   }
 
 
-
-   &:after {
+  &:after {
     content: '...................................................................................................................................';
     display: block;
     white-space: nowrap;
     overflow: hidden;
   }
 
-   & span:first-of-type {
+  & span:first-of-type {
     float: left;
     cursor: pointer;
   }
 
-   & span:last-of-type {
+  & span:last-of-type {
     float: right;
   }
 
@@ -183,5 +188,21 @@ ul {
   padding: 3px 10px;
   cursor: pointer;
   margin-left: 5px;
+}
+
+
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+
+.list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>

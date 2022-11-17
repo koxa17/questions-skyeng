@@ -7,16 +7,16 @@
     </h1>
     <div class="screenshot" ref="screenshot">
 
-      <question-item
-          :questions="questions"
-          @onClick="(question, more) => questionIncrement(question, more)"
-          @onContext="(event, question, more) => openContextMenu(event, question, more)"
-          @onBlur="(event, question) => saveContentInput(event, question)"
-      />
+        <question-item
+            :questions="questions"
+            @onClick="(question, more) => questionIncrement(question, more)"
+            @onContext="(event, question, more) => openContextMenu(event, question, more)"
+            @onBlur="(event, question) => saveContentInput(event, question)"
+        />
 
 
       <div class="options-btns" ref="hide_on_screenshot">
-        <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
+        <button class="btn-add" @click="addNewQuestion"><font-awesome-icon icon="fa-plus" /></button>
       </div>
 
 
@@ -105,7 +105,8 @@ export default {
   },
   data() {
     return {
-      questions: questionsDefault,
+      test: questionsDefault,
+      questions: Object.assign([], questionsDefault),
       options: {
         divider: true
       },
@@ -291,6 +292,13 @@ export default {
         }
       ]
       this.$emit("showContextMenu", event, contextMenuItem)
+    },
+    addNewQuestion() {
+      let id = this.questions[this.questions.length - 1].id + 1
+      // this.question.splice(this.randomIndex(), 0, this.nextNum++)
+      this.questions.push(
+          {id, title: `Новый елемент списка ${id}`, result: 0},
+      )
     }
   },
   watch: {
@@ -437,6 +445,7 @@ a.hidden {
 .hide_on_screenshot {
   display: none;
 }
+
 
 </style>
 
