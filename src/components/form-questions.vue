@@ -16,7 +16,7 @@
 
 
       <div class="options-btns" ref="hide_on_screenshot">
-        <button class="btn-add" @click="addNewQuestion"><font-awesome-icon icon="fa-plus" /></button>
+        <button class="btn-add" @click="addNewQuestion"><span>Добавить елемент списка</span><font-awesome-icon icon="fa-plus" /></button>
       </div>
 
 
@@ -293,16 +293,17 @@ export default {
       this.$emit("showContextMenu", event, contextMenuItem)
     },
     addNewQuestion() {
-      let id = this.questions[this.questions.length - 1].id + 1
-      // this.question.splice(this.randomIndex(), 0, this.nextNum++)
-      // this.questions.push(
-      //     {id, title: `Новый елемент списка ${id}`, result: 0},
-      // )
-      this.questions[4].more.push(
-          {
-            id, title: `Новый елемент списка ${id}`, result: 0
-          }
+      const id = this.getCreateIdForItem
+      this.questions.push(
+          {id, title: `Новый елемент списка ${id}`, result: 0},
       )
+
+      // this.questions[4].more.push(
+      //     {
+      //       id, title: `Новый елемент списка ${id}`, result: 0
+      //     }
+      // )
+
     }
   },
   watch: {
@@ -316,6 +317,11 @@ export default {
       saveDataToLocalStorage("author", newValue)
     }
   },
+  computed: {
+    getCreateIdForItem() {
+      return this.questions[this.questions.length - 1].id + 1
+    }
+  }
 }
 </script>
 
@@ -417,8 +423,11 @@ a.hidden {
     left: 10px;
     cursor: pointer;
 
+
     &.icon__close-open {
       left: 0;
+      width: 33%;
+      text-align: center;
     }
   }
 
@@ -436,14 +445,19 @@ a.hidden {
 }
 
 .btn-add {
-  width: 42px;
   height: 26px;
   border: 1px solid black;
   opacity: .4;
 
   &:hover {
     opacity: 1;
+    cursor: pointer;
   }
+
+  & span {
+    margin-right: 5px;
+  }
+
 }
 
 .hide_on_screenshot {
