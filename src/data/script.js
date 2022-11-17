@@ -23,3 +23,7 @@ export const questionsDefault = [
     {id: 8, title: "Озвучил Акцию", result: 0},
     {id: 9, title: "Попрощался!", result: 0},
 ]
+
+export function getDeepCopyOfQuestionsDefault() {
+    return JSON.parse(JSON.stringify(questionsDefault))
+}

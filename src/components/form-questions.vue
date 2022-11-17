@@ -75,7 +75,7 @@ import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
 import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
 import QuestionItem from "@/components/question-item";
-import {questionsDefault} from "@/data/script";
+import {getDeepCopyOfQuestionsDefault} from "@/data/script";
 
 export default {
   name: "form-questions",
@@ -105,8 +105,7 @@ export default {
   },
   data() {
     return {
-      test: questionsDefault,
-      questions: Object.assign([], questionsDefault),
+      questions: getDeepCopyOfQuestionsDefault(),
       options: {
         divider: true
       },
@@ -278,7 +277,7 @@ export default {
             )
 
             function onOk() {
-              thisRoot.questions = questionsDefault;
+              thisRoot.questions = getDeepCopyOfQuestionsDefault();
 
               thisRoot.$awn.success("Список был сброшен!", {
                 labels: {
@@ -296,8 +295,13 @@ export default {
     addNewQuestion() {
       let id = this.questions[this.questions.length - 1].id + 1
       // this.question.splice(this.randomIndex(), 0, this.nextNum++)
-      this.questions.push(
-          {id, title: `Новый елемент списка ${id}`, result: 0},
+      // this.questions.push(
+      //     {id, title: `Новый елемент списка ${id}`, result: 0},
+      // )
+      this.questions[4].more.push(
+          {
+            id, title: `Новый елемент списка ${id}`, result: 0
+          }
       )
     }
   },
@@ -311,7 +315,7 @@ export default {
     author(newValue) {
       saveDataToLocalStorage("author", newValue)
     }
-  }
+  },
 }
 </script>
 

@@ -37,10 +37,11 @@
         </p>
 
         <ul v-if="question.more">
-          <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
-            <p class="question__item">
-              <span class="question__item__text">{{ more.title }}</span>
-              <span>
+          <transition-group name="list" tag="p">
+            <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
+              <p class="question__item">
+                <span class="question__item__text">{{ more.title }}</span>
+                <span>
               <button class="btn" @click="$emit('onClick', question, more)">Спросил(а)</button>
                 <input type="text"
                        class="input__result"
@@ -51,8 +52,9 @@
                        @blur="$emit('onBlur', $event, more)"
                 >
             </span>
-            </p>
-          </li>
+              </p>
+            </li>
+          </transition-group>
         </ul>
       </div>
     </transition-group>
@@ -203,6 +205,6 @@ ul {
 .list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */
 {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateX(30px);
 }
 </style>
