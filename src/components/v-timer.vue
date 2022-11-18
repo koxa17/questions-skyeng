@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import {saveDataToLocalStorage} from "@/assets/tools/script";
+
 export default {
   name: "v-timer",
   props: {
@@ -81,7 +83,7 @@ export default {
               seconds: 0,
             }
 
-            this.saveStorage(this.timerId, this.time)
+            saveDataToLocalStorage(this.timerId, this.time)
           }
         }]
 
@@ -89,7 +91,7 @@ export default {
     },
     timeGo(status) {
 
-      this.saveStorage(this.timerId, this.time)
+      saveDataToLocalStorage(this.timerId, this.time)
 
       if (status) {
         this.statusTimer = true
@@ -125,14 +127,12 @@ export default {
       }
 
     },
-    saveStorage(key, data) {
-      localStorage.setItem(key, JSON.stringify(data))
-    }
+
   },
   watch: {
     time: {
       handler(newValue){
-        this.saveStorage(this.timerId, newValue)
+        saveDataToLocalStorage(this.timerId, newValue)
       },
         deep: true
     }

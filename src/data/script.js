@@ -6,17 +6,17 @@ export const questionsDefault = [
     {
         id: 5, title: "Отработка возражения №1:",
         more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
+            {title: "Уточняющий вопрос", result: 0, id: 1},
+            {title: "Аргумент с 2-мя преймущества", result: 0, id: 2},
+            {title: "Вопрос призыв", result: 0, id: 3}
         ]
     },
     {
         id: 6, title: "Отработка возражения №2:",
         more: [
-            {title: "Уточняющий вопрос", result: 0},
-            {title: "Аргумент с 2-мя преймущества", result: 0},
-            {title: "Вопрос призыв", result: 0}
+            {title: "Уточняющий вопрос", result: 0, id: 1},
+            {title: "Аргумент с 2-мя преймущества", result: 0, id: 2},
+            {title: "Вопрос призыв", result: 0, id: 3}
         ],
     },
     {id: 7, title: "Спросил про детей!", result: 0},

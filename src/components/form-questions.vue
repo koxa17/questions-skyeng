@@ -7,16 +7,19 @@
     </h1>
     <div class="screenshot" ref="screenshot">
 
-        <question-item
-            :questions="questions"
-            @onClick="(question, more) => questionIncrement(question, more)"
-            @onContext="(event, question, more) => openContextMenu(event, question, more)"
-            @onBlur="(event, question) => saveContentInput(event, question)"
-        />
+      <question-item
+          :questions="questions"
+          @onClick="(question, more) => questionIncrement(question, more)"
+          @onContext="(event, question, more) => openContextMenu(event, question, more)"
+          @onBlur="(event, question) => saveContentInput(event, question)"
+          @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
+      />
 
 
       <div class="options-btns" ref="hide_on_screenshot">
-        <button class="btn-add" @click="addNewQuestion"><span>Добавить елемент списка</span><font-awesome-icon icon="fa-plus" /></button>
+        <button class="btn-add" @click="addNewQuestion"><span>Добавить пункт списка</span>
+          <font-awesome-icon icon="fa-plus"/>
+        </button>
       </div>
 
 
@@ -76,12 +79,16 @@ import VTimer from "@/components/v-timer";
 import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
 import QuestionItem from "@/components/question-item";
 import {getDeepCopyOfQuestionsDefault} from "@/data/script";
+import { VueMaskDirective } from 'v-mask';
 
 export default {
   name: "form-questions",
   components: {QuestionItem, VTimer},
+  directives: {
+    'mask': VueMaskDirective
+  },
   props: {},
-  mounted() {
+  created() {
     let questions = getDataFromLocalStorage("questions")
     let author = getDataFromLocalStorage("author")
     let showTimers = getDataFromLocalStorage("showTimers")
@@ -150,7 +157,6 @@ export default {
           return item
         })
         this.$set(this.questions, '', questions)
-        saveDataToLocalStorage("questions", questions)
 
         this.$awn.success("Форма была очищенна!", {
           labels: {
@@ -163,7 +169,8 @@ export default {
       this.$awn.confirm(
           "Вы уверенны что хотите очистить форму?",
           onOk,
-          () => {},
+          () => {
+          },
           {
             labels: {
               confirm: 'Очиска формы',
@@ -182,7 +189,7 @@ export default {
 
       playAudio()
 
-      if(event.target !== 'button') {
+      if (event.target !== 'button') {
         btn = target.closest('button')
       }
 
@@ -202,7 +209,7 @@ export default {
     openContextMenu(event, question, more) {
       let disabled = parseInt(question.result) === 0
 
-      if(more) {
+      if (more) {
         disabled = parseInt(more.result) === 0
       }
 
@@ -266,7 +273,8 @@ export default {
             this.$awn.confirm(
                 "Вы уверенны что хотите сбросить список?",
                 onOk,
-                () => {},
+                () => {
+                },
                 {
                   labels: {
                     confirm: 'Сброс списка',
@@ -292,18 +300,120 @@ export default {
       ]
       this.$emit("showContextMenu", event, contextMenuItem)
     },
+    contextElementList(event, idx, moreIdx) {
+      let vRoot = this
+      let disabled = moreIdx === 0 ? true : !!moreIdx
+      let contextMenuElement = [
+        {
+          icon: 'fa-pen',
+          text: 'Редактировать',
+          divider: false,
+          disabled: true,
+          click: () => {
+
+          }
+        },
+        {
+          icon: 'fa-circle-plus',
+          text: 'Добавить подпункт',
+          divider: true,
+          disabled: disabled,
+          click: () => {
+            let obj = vRoot.questions[idx]
+            if (obj.more) {
+              const id = vRoot.getIdForElementMore(idx)
+              obj.more.push(
+                  {
+                    id, title: `Новый подпункт ${id}`, result: 0
+                  }
+              )
+              vRoot.$set(vRoot.questions[idx].more, '', obj.more)
+
+            } else {
+              vRoot.$set(
+                  vRoot.questions[idx],
+                  'more',
+                  [
+                    {
+                      id: 1, title: `Новый подпункт 1`, result: 0
+                    }
+                  ]
+              )
+
+            }
+          }
+        },
+        {
+          icon: 'fa-xmark',
+          text: 'Удалить',
+          click: () => {
+
+            if (isNaN(moreIdx)) {
+              let containsMoreArr = !!vRoot.questions[idx].more
+
+              vRoot.questions.splice(idx, 1)
+
+              if (containsMoreArr) {
+                vRoot.$awn.warning("Пункт списка с подпунктами был удален!", {
+                  labels: {
+                    warning: ''
+                  }
+                })
+              } else {
+                vRoot.$awn.warning("Пункт списка был удален!", {
+                  labels: {
+                    warning: ''
+                  }
+                })
+              }
+
+
+              return true
+            }
+
+            if (vRoot.questions[idx].more.length > 1) {
+              vRoot.questions[idx].more.splice(moreIdx, 1)
+
+              vRoot.$awn.warning("Подпункт был удален!", {
+                labels: {
+                  warning: ''
+                }
+              })
+
+            } else {
+              delete vRoot.questions[idx].more
+              vRoot.$set(vRoot.questions, idx, vRoot.questions[idx])
+              vRoot.$set(vRoot.questions[idx], 'result', 0)
+
+              vRoot.$awn.warning("Все подпункты были удалены!", {
+                labels: {
+                  warning: ''
+                }
+              })
+
+            }
+
+          }
+        }
+      ]
+
+      this.$emit("showContextMenu", event, contextMenuElement)
+    },
     addNewQuestion() {
-      const id = this.getCreateIdForItem
+      const id = this.getIdForElement
       this.questions.push(
           {id, title: `Новый елемент списка ${id}`, result: 0},
       )
 
-      // this.questions[4].more.push(
-      //     {
-      //       id, title: `Новый елемент списка ${id}`, result: 0
-      //     }
-      // )
+      this.$awn.success("Добавлен новый пункт!", {
+        labels: {
+          success: ''
+        }
+      })
 
+    },
+    getIdForElementMore(idx) {
+      return this.questions[idx].more[this.questions[idx].more.length - 1].id + 1
     }
   },
   watch: {
@@ -318,9 +428,18 @@ export default {
     }
   },
   computed: {
-    getCreateIdForItem() {
-      return this.questions[this.questions.length - 1].id + 1
-    }
+    getIdForElement() {
+      const lastItem = this.questions[this.questions.length - 1]
+      return lastItem ? lastItem.id + 1 : 1
+    },
+    // questionsComputed: {
+    //   get: function () {
+    //     return this.questions
+    //   },
+    //   set: function (newValue) {
+    //     this.questions = newValue
+    //   }
+    // }
   }
 }
 </script>
@@ -448,6 +567,7 @@ a.hidden {
   height: 26px;
   border: 1px solid black;
   opacity: .4;
+  border-radius: 5px;
 
   &:hover {
     opacity: 1;
@@ -467,8 +587,16 @@ a.hidden {
 
 </style>
 
-<style>
+<style lang="scss">
 .awn-toast-content {
   font-size: 18px;
+}
+
+.awn-toast-wrapper {
+  padding: 22px 16px;
+
+  .awn-toast-content {
+    width: 100% !important;
+  }
 }
 </style>

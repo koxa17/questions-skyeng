@@ -1,13 +1,15 @@
 <template>
   <div>
     <transition-group name="list" tag="p">
-      <div v-for="(question, idx) in questions" :key="question.id" :class="{'mt-30': question.more}">
+      <div v-for="(question, questionIdx) in questions" :key="question.id" :class="{'mt-30': question.more}">
         <p class="question__item">
         <span class="question__item__text">
-          <span class="question__item__text__number">{{ idx + 1 }}.</span>
+          <span class="question__item__text__number">{{ questionIdx + 1 }}.</span>
           <span class="question__item__text--editable" contenteditable="false"
                 @dblclick="contentEditableOnChange($event)"
-                @blur="contentEditableBlur($event, question)">{{ question.title }}</span>
+                @blur="contentEditableBlur($event, question)"
+                @contextmenu.prevent.stop="$emit('onContextElementList', $event, questionIdx)"
+          >{{ question.title }}</span>
         </span>
           <span>
             <span v-if="!question.more">
@@ -38,9 +40,13 @@
 
         <ul v-if="question.more">
           <transition-group name="list" tag="p">
-            <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
+            <li v-for="(more, moreIdx) in question.more" :key="more.id">
               <p class="question__item">
-                <span class="question__item__text">{{ more.title }}</span>
+                <span class="question__item__text question__item__text--editable" contenteditable="false"
+                      @dblclick="contentEditableOnChange($event)"
+                      @blur="contentEditableBlur($event, more)"
+                      @contextmenu.prevent.stop="$emit('onContextElementList', $event, questionIdx, moreIdx)"
+                >{{ more.title }}</span>
                 <span>
               <button class="btn" @click="$emit('onClick', question, more)">Спросил(а)</button>
                 <input type="text"
@@ -62,6 +68,7 @@
 </template>
 
 <script>
+
 export default {
   name: "question-item",
   props: {
