@@ -84,6 +84,12 @@ export default {
             }
 
             saveDataToLocalStorage(this.timerId, this.time)
+            this.$awn.success(`Таймер "${this.titleTimer}" был сброшен!`, {
+              labels: {
+                success: ''
+              }
+            })
+
           }
         }]
 
@@ -119,11 +125,23 @@ export default {
 
         }, 1000)
 
+        this.$awn.success(`Таймер "${this.titleTimer}" запущен!`, {
+          labels: {
+            success: ''
+          }
+        })
+
       }
 
       if (!status) {
         clearInterval(this.timerSetIntervalId)
         this.statusTimer = false
+
+        this.$awn.info(`Таймер "${this.titleTimer}" остановлен!`, {
+          labels: {
+            info: ''
+          }
+        })
       }
 
     },

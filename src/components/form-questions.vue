@@ -305,15 +305,6 @@ export default {
       let disabled = moreIdx === 0 ? true : !!moreIdx
       let contextMenuElement = [
         {
-          icon: 'fa-pen',
-          text: 'Редактировать',
-          divider: false,
-          disabled: true,
-          click: () => {
-
-          }
-        },
-        {
           icon: 'fa-circle-plus',
           text: 'Добавить подпункт',
           divider: true,
