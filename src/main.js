@@ -9,6 +9,7 @@ library.add(faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faMinus, faPen, f
 import { VueMaskDirective } from 'v-mask'
 import VueAWN from "vue-awesome-notifications"
 import 'vue-awesome-notifications/dist/styles/style.css';
+import 'animate.css';
 
 let options = {
     position: "bottom-right",

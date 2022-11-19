@@ -2,8 +2,8 @@
 
   <div class="form-questions">
 
-    <h1>
-      <span @contextmenu.prevent.stop="openResetList">Check-list!</span>
+    <h1 class="logo">
+      <span @contextmenu.prevent.stop="openResetList">Check-list! <img src="../assets/images/logo.png" alt="" class="animate__animated animate__zoomInLeft animate__delay-1s animate__fast" /></span>
     </h1>
     <div class="screenshot" ref="screenshot">
 
@@ -457,21 +457,43 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
-
 .form-questions {
   width: 600px;
   margin: 0 auto 15px auto;
   flex: 1 1;
+  padding-top: 20px;
 
-  & h1 {
+  & h1.logo {
     text-align: center;
     margin: 5px 0 0 0;
     font-family: 'Kaushan Script', cursive;
 
+
     span {
       cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
+      position: relative;
+      //&::after {
+      //  content: "";
+      //  display: block;
+      //  position: absolute;
+      //  width: 50px;
+      //  height: 50px;
+      //  background: url("../assets/images/logo.png") no-repeat center / contain;
+      //  top: 0;
+      //  right: 0;
+      //  transform: translate(110%, -50%);
+      //}
+      & img {
+        width: 50px;
+        height: 50px;
+        position: absolute;
+          top: 0;
+          right: 0;
+          transform: translate(110%, -50%);
+      }
     }
+
+
   }
 }
 
