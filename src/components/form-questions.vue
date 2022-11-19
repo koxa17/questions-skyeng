@@ -7,13 +7,13 @@
     </h1>
     <div class="screenshot" ref="screenshot">
 
-      <question-item
-          :questions="questions"
-          @onClick="(question, more) => questionIncrement(question, more)"
-          @onContext="(event, question, more) => openContextMenu(event, question, more)"
-          @onBlur="(event, question) => saveContentInput(event, question)"
-          @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
-      />
+        <question-list
+            :questions="questions"
+            @onClick="(question, more) => questionIncrement(question, more)"
+            @onContext="(event, question, more) => openContextMenu(event, question, more)"
+            @onBlur="(event, question) => saveContentInput(event, question)"
+            @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
+        />
 
 
       <div class="options-btns" ref="hide_on_screenshot">
@@ -77,13 +77,14 @@
 import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
 import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
-import QuestionItem from "@/components/question-item";
+
 import {getDeepCopyOfQuestionsDefault} from "@/data/script";
 import { VueMaskDirective } from 'v-mask';
+import QuestionList from "@/components/question-list";
 
 export default {
   name: "form-questions",
-  components: {QuestionItem, VTimer},
+  components: {QuestionList, VTimer},
   directives: {
     'mask': VueMaskDirective
   },
@@ -121,6 +122,26 @@ export default {
     }
   },
   methods: {
+    handleChange() {
+      console.log('changed');
+    },
+    inputChanged(value) {
+      this.activeNames = value;
+    },
+    getComponentData() {
+      return {
+        on: {
+          change: this.handleChange,
+          input: this.inputChanged
+        },
+        attrs:{
+          wrap: true
+        },
+        props: {
+          value: this.activeNames
+        }
+      };
+    },
     questionIncrement(question, more, operation = true) {
       let indexElement = this.questions.findIndex(item => {
         return item === question

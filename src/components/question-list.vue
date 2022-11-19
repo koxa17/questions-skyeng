@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <draggable :list="questions">
     <transition-group name="list" tag="p">
-      <div v-for="(question, questionIdx) in questions" :key="question.id" :class="{'mt-30': question.more}">
+      <div v-for="(question, questionIdx) in questionsArr" :key="question.id" :class="{'mt-30': question.more}">
         <p class="question__item">
         <span class="question__item__text">
           <span class="question__item__text__number">{{ questionIdx + 1 }}.</span>
@@ -39,15 +39,16 @@
         </p>
 
         <ul v-if="question.more">
-          <transition-group name="list" tag="p">
-            <li v-for="(more, moreIdx) in question.more" :key="more.id">
-              <p class="question__item">
+          <draggable :list="question.more">
+            <transition-group name="list" tag="p">
+              <li v-for="(more, moreIdx) in question.more" :key="more.id">
+                <p class="question__item">
                 <span class="question__item__text question__item__text--editable" contenteditable="false"
                       @dblclick="contentEditableOnChange($event)"
                       @blur="contentEditableBlur($event, more)"
                       @contextmenu.prevent.stop="$emit('onContextElementList', $event, questionIdx, moreIdx)"
                 >{{ more.title }}</span>
-                <span>
+                  <span>
               <button class="btn" @click="$emit('onClick', question, more)">Спросил(а)</button>
                 <input type="text"
                        class="input__result"
@@ -58,19 +59,22 @@
                        @blur="$emit('onBlur', $event, more)"
                 >
             </span>
-              </p>
-            </li>
-          </transition-group>
+                </p>
+              </li>
+            </transition-group>
+          </draggable>
         </ul>
       </div>
     </transition-group>
-  </div>
+  </draggable>
 </template>
 
 <script>
+import draggable from 'vuedraggable';
 
 export default {
-  name: "question-item",
+  name: "question-list",
+  components: {draggable},
   props: {
     questions: {
       type: Array,
@@ -105,6 +109,11 @@ export default {
         console.log(e.target.innerText)
       }
     }
+  },
+  computed: {
+    questionsArr() {
+      return this.questions
+    }
   }
 }
 </script>
@@ -113,7 +122,6 @@ export default {
 .question__item {
   overflow: hidden;
   font-family: 'Kaushan Script', cursive;
-
   &__text {
     margin-right: 7px;
 
