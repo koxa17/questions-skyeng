@@ -3,17 +3,20 @@
   <div class="form-questions">
 
     <h1 class="logo">
-      <span @contextmenu.prevent.stop="openResetList">Check-list! <img src="../assets/images/logo.png" alt="" class="animate__animated animate__zoomInLeft animate__delay-1s animate__fast" /></span>
+      <span @contextmenu.prevent.stop="openResetList">
+        Check-list!
+        <img src="../assets/images/logo.png" alt="" class="animate__animated animate__zoomInLeft animate__delay-1s animate__fast"/>
+      </span>
     </h1>
     <div class="screenshot" ref="screenshot">
 
-        <question-list
-            :questions="questions"
-            @onClick="(question, more) => questionIncrement(question, more)"
-            @onContext="(event, question, more) => openContextMenu(event, question, more)"
-            @onBlur="(event, question) => saveContentInput(event, question)"
-            @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
-        />
+      <question-list
+          :questions="questions"
+          @onClick="(question, more) => questionIncrement(question, more)"
+          @onContext="(event, question, more) => openContextMenu(event, question, more)"
+          @onBlur="(event, question) => saveContentInput(event, question)"
+          @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
+      />
 
 
       <div class="options-btns" ref="hide_on_screenshot">
@@ -79,7 +82,7 @@ import VTimer from "@/components/v-timer";
 import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
 
 import {getDeepCopyOfQuestionsDefault} from "@/data/script";
-import { VueMaskDirective } from 'v-mask';
+import {VueMaskDirective} from 'v-mask';
 import QuestionList from "@/components/question-list";
 
 export default {
@@ -134,7 +137,7 @@ export default {
           change: this.handleChange,
           input: this.inputChanged
         },
-        attrs:{
+        attrs: {
           wrap: true
         },
         props: {
@@ -179,7 +182,7 @@ export default {
         })
         this.$set(this.questions, '', questions)
 
-        this.$awn.success("Форма была очищенна!", {
+        this.$awn.success("Форма была очищена!", {
           labels: {
             success: ''
           }
@@ -307,12 +310,19 @@ export default {
 
             function onOk() {
               thisRoot.questions = getDeepCopyOfQuestionsDefault();
-
-              thisRoot.$awn.success("Список был сброшен!", {
-                labels: {
-                  success: ''
-                }
-              })
+              let load = Promise.resolve(
+                  setTimeout(() => true, 2000)
+              )
+              thisRoot.$awn.asyncBlock(
+                  load,
+                  () => {thisRoot.$awn.success("Список был сброшен!", {
+                    labels: {
+                      success: ''
+                    }
+                  })},
+                  undefined,
+                  "Идет сброс списка...",
+              )
 
             }
 
@@ -487,9 +497,9 @@ export default {
         width: 50px;
         height: 50px;
         position: absolute;
-          top: 0;
-          right: 0;
-          transform: translate(110%, -50%);
+        top: 0;
+        right: 0;
+        transform: translate(110%, -50%);
       }
     }
 
