@@ -593,7 +593,7 @@ a.hidden {
 
 .options-btns {
   width: 100%;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   text-align: right;
 }
 
