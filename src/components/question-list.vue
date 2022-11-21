@@ -1,12 +1,17 @@
 <template>
-  <div>
-    <div v-for="question in questions" :key="question.id" :class="{'mt-30': question.more}">
-      <p class="question__item">
+  <draggable :list="questions">
+    <transition-group name="list" tag="p">
+      <div v-for="(question, questionIdx) in questionsArr" :key="question.id" :class="{'marg-5 ': question.more, 'question__item--important': question.important && question.more }">
+        <p class="question__item" :class="{'question__item--important': question.important && !question.more}">
         <span class="question__item__text">
-          <span class="question__item__text__number">{{ question.id }}.</span>
-          <span class="question__item__text--editable" contenteditable="false"  @dblclick="contentEditableOnChange($event)" @blur="contentEditableBlur($event, question)">{{ question.title }}</span>
+          <span class="question__item__text__number">{{ questionIdx + 1 }}.</span>
+          <span class="question__item__text--editable" contenteditable="false"
+                @dblclick="contentEditableOnChange($event)"
+                @blur="contentEditableBlur($event, question)"
+                @contextmenu.prevent.stop="$emit('onContextElementList', $event, questionIdx)"
+          >{{ question.title }}</span>
         </span>
-        <span>
+          <span>
             <span v-if="!question.more">
               <button class="btn"
                       @click="$emit('onClick', question)">Спросил(а)
@@ -22,7 +27,7 @@
               >
             </span>
           </span>
-        <span v-if="question.more">
+          <span v-if="question.more">
             <input
                 type="text"
                 class="input__result input__result-sum"
@@ -31,14 +36,20 @@
                 @contextmenu.prevent.stop
             >
           </span>
-      </p>
+        </p>
 
-      <ul v-if="question.more">
-        <li v-for="(more, idx) in question.more" :key="more.title + '__' + idx">
-          <p class="question__item">
-            <span class="question__item__text">{{ more.title }}</span>
-            <span>
-              <button class="btn"  @click="$emit('onClick', question, more)">Спросил(а)</button>
+        <ul v-if="question.more">
+          <draggable :list="question.more">
+            <transition-group name="list" tag="p">
+              <li v-for="(more, moreIdx) in question.more" :key="more.id">
+                <p class="question__item">
+                <span class="question__item__text question__item__text--editable" contenteditable="false"
+                      @dblclick="contentEditableOnChange($event)"
+                      @blur="contentEditableBlur($event, more)"
+                      @contextmenu.prevent.stop="$emit('onContextElementList', $event, questionIdx, moreIdx)"
+                >{{ more.title }}</span>
+                  <span>
+              <button class="btn" @click="$emit('onClick', question, more)">Спросил(а)</button>
                 <input type="text"
                        class="input__result"
                        readonly
@@ -48,16 +59,22 @@
                        @blur="$emit('onBlur', $event, more)"
                 >
             </span>
-          </p>
-        </li>
-      </ul>
-    </div>
-  </div>
+                </p>
+              </li>
+            </transition-group>
+          </draggable>
+        </ul>
+      </div>
+    </transition-group>
+  </draggable>
 </template>
 
 <script>
+import draggable from 'vuedraggable';
+
 export default {
-  name: "question-item",
+  name: "question-list",
+  components: {draggable},
   props: {
     questions: {
       type: Array,
@@ -92,18 +109,29 @@ export default {
         console.log(e.target.innerText)
       }
     }
+  },
+  computed: {
+    questionsArr() {
+      return this.questions
+    }
   }
 }
 </script>
 
 <style scoped lang="scss">
+p{
+  margin: 0;
+}
+
 .question__item {
   overflow: hidden;
   font-family: 'Kaushan Script', cursive;
-
+  padding: 10px 8px;
+  margin: 0;
   &__text {
     margin-right: 7px;
-    &-input{
+
+    &-input {
       border: 2px solid transparent;
     }
 
@@ -113,6 +141,7 @@ export default {
 
     &--editable {
       cursor: pointer;
+
       &[contenteditable="true"] {
         padding: 5px 10px;
         cursor: text;
@@ -121,32 +150,37 @@ export default {
 
   }
 
+  &--important {
+    outline: 2px solid red;
+    border-radius: 5px;
+    margin-bottom: 8px;
+  }
 
 
-   &:after {
+  &:after {
     content: '...................................................................................................................................';
     display: block;
     white-space: nowrap;
     overflow: hidden;
   }
 
-   & span:first-of-type {
+  & span:first-of-type {
     float: left;
     cursor: pointer;
   }
 
-   & span:last-of-type {
+  & span:last-of-type {
     float: right;
   }
 
 }
 
-.mt-30 {
-  margin-top: 25px;
+.marg-5 {
+  margin: 5px 0;
 }
 
 ul {
-  margin: 0 0 25px 0;
+  margin: 0;
 }
 
 .input__result {
@@ -183,5 +217,21 @@ ul {
   padding: 3px 10px;
   cursor: pointer;
   margin-left: 5px;
+}
+
+
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+
+.list-enter, .list-leave-to /* .list-leave-active до версии 2.1.8 */
+{
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

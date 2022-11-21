@@ -2,21 +2,27 @@
 
   <div class="form-questions">
 
-    <h1>
-      <span @contextmenu.prevent.stop="openResetList">Check-list!</span>
+    <h1 class="logo">
+      <span @contextmenu.prevent.stop="openResetList">
+        Check-list!
+        <img src="../assets/images/logo.png" alt="" class="animate__animated animate__zoomInLeft animate__delay-1s animate__fast"/>
+      </span>
     </h1>
     <div class="screenshot" ref="screenshot">
 
-      <question-item
+      <question-list
           :questions="questions"
           @onClick="(question, more) => questionIncrement(question, more)"
           @onContext="(event, question, more) => openContextMenu(event, question, more)"
           @onBlur="(event, question) => saveContentInput(event, question)"
+          @onContextElementList="(event, idx, moreIdx) => contextElementList(event, idx, moreIdx)"
       />
 
 
       <div class="options-btns" ref="hide_on_screenshot">
-        <button class="btn-add"><font-awesome-icon icon="fa-plus" /></button>
+        <button class="btn-add" @click="addNewQuestion"><span>Добавить пункт списка</span>
+          <font-awesome-icon icon="fa-plus"/>
+        </button>
       </div>
 
 
@@ -73,15 +79,26 @@
 <script>
 import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
-import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
-import QuestionItem from "@/components/question-item";
-import {questionsDefault} from "@/data/script";
+import {
+  clearStorage,
+  getDataFromLocalStorage,
+  playAudio,
+  removeKeyLocalStorage,
+  saveDataToLocalStorage
+} from "@/assets/tools/script";
+
+import {getDeepCopyOfQuestionsDefault} from "@/data/script";
+import {VueMaskDirective} from 'v-mask';
+import QuestionList from "@/components/question-list";
 
 export default {
   name: "form-questions",
-  components: {QuestionItem, VTimer},
+  components: {QuestionList, VTimer},
+  directives: {
+    'mask': VueMaskDirective
+  },
   props: {},
-  mounted() {
+  created() {
     let questions = getDataFromLocalStorage("questions")
     let author = getDataFromLocalStorage("author")
     let showTimers = getDataFromLocalStorage("showTimers")
@@ -105,7 +122,7 @@ export default {
   },
   data() {
     return {
-      questions: questionsDefault,
+      questions: getDeepCopyOfQuestionsDefault(),
       options: {
         divider: true
       },
@@ -150,9 +167,8 @@ export default {
           return item
         })
         this.$set(this.questions, '', questions)
-        saveDataToLocalStorage("questions", questions)
 
-        this.$awn.success("Форма была очищенна!", {
+        this.$awn.success("Форма была очищена!", {
           labels: {
             success: ''
           }
@@ -163,7 +179,8 @@ export default {
       this.$awn.confirm(
           "Вы уверенны что хотите очистить форму?",
           onOk,
-          () => {},
+          () => {
+          },
           {
             labels: {
               confirm: 'Очиска формы',
@@ -174,17 +191,35 @@ export default {
       )
 
     },
-    async getScreenshot() {
+    async getScreenshot(event) {
+      const target = event.target
+      let btn = target
+      let hideBtn = this.$refs.hide_on_screenshot
+      hideBtn.classList.add('hide_on_screenshot')
+
       playAudio()
+
+      if (event.target !== 'button') {
+        btn = target.closest('button')
+      }
+
+      btn.setAttribute('disabled', 'disabled')
+
       const canvas = await html2canvas(this.$refs.screenshot)
       this.$refs.down.download = 'filename.png';
       this.$refs.down.href = canvas.toDataURL()
       this.$refs.down.click();
+
+      setTimeout(() => {
+        hideBtn.classList.remove('hide_on_screenshot')
+        btn.removeAttribute('disabled')
+      }, 1000)
+
     },
     openContextMenu(event, question, more) {
       let disabled = parseInt(question.result) === 0
 
-      if(more) {
+      if (more) {
         disabled = parseInt(more.result) === 0
       }
 
@@ -248,7 +283,8 @@ export default {
             this.$awn.confirm(
                 "Вы уверенны что хотите сбросить список?",
                 onOk,
-                () => {},
+                () => {
+                },
                 {
                   labels: {
                     confirm: 'Сброс списка',
@@ -259,11 +295,156 @@ export default {
             )
 
             function onOk() {
-              thisRoot.questions = questionsDefault;
+              thisRoot.questions = getDeepCopyOfQuestionsDefault();
+              let load = Promise.resolve(
+                  setTimeout(() => true, 2000)
+              )
+              thisRoot.$awn.asyncBlock(
+                  load,
+                  () => {thisRoot.$awn.success("Список был сброшен!", {
+                    labels: {
+                      success: ''
+                    }
+                  })},
+                  undefined,
+                  "Идет сброс списка...",
+              )
 
-              thisRoot.$awn.success("Список был сброшен!", {
+            }
+
+          }
+        },
+        {
+          icon: 'fa-trash',
+          text: 'Очистить хранилище',
+          divider: true,
+          click: () => {
+            this.$awn.confirm(
+                `Нажмите 'Да', если у вас возникли ошибки или что-то не работает? <br> <strong>Внимание!</strong> После очистки произойдет полный сброс вашего листа!`,
+                onOk,
+                () => {
+                },
+                {
+                  labels: {
+                    confirm: 'Полная очистка!',
+                    confirmOk: "Да",
+                    confirmCancel: 'Отмена'
+                  }
+                }
+            )
+
+            function onOk() {
+              clearStorage();
+
+              let load = Promise.resolve(
+                  setTimeout(() => true, 3000)
+              )
+              thisRoot.$awn.asyncBlock(
+                  load,
+                  '',
+                  undefined,
+                  "Идет полная очистка...",
+              )
+
+              location.reload();
+            }
+
+          }
+        }
+      ]
+      this.$emit("showContextMenu", event, contextMenuItem)
+    },
+    contextElementList(event, idx, moreIdx) {
+      let vRoot = this
+      let disabled = moreIdx === 0 ? true : !!moreIdx
+      let textMenuImportant = vRoot.questions[idx].important ? 'Отменить' : 'Важное'
+
+      let contextMenuElement = [
+        {
+          icon: 'fa-circle-plus',
+          text: 'Добавить подпункт',
+          disabled: disabled,
+          click: () => {
+            let obj = vRoot.questions[idx]
+            if (obj.more) {
+              const id = vRoot.getIdForElementMore(idx)
+              obj.more.push(
+                  {
+                    id, title: `Новый подпункт ${id}`, result: 0
+                  }
+              )
+              vRoot.$set(vRoot.questions[idx].more, '', obj.more)
+
+            } else {
+              vRoot.$set(
+                  vRoot.questions[idx],
+                  'more',
+                  [
+                    {
+                      id: 1, title: `Новый подпункт 1`, result: 0
+                    }
+                  ]
+              )
+
+            }
+          }
+        },
+        {
+          icon: 'star',
+          text: textMenuImportant,
+          divider: true,
+          disabled: disabled,
+          click: () => {
+            let obj = vRoot.questions[idx]
+            let important = Boolean(obj.important)
+            vRoot.$set(obj, 'important', !important)
+          }
+        },
+        {
+          icon: 'fa-xmark',
+          text: 'Удалить',
+          click: () => {
+
+            if (isNaN(moreIdx)) {
+              let containsMoreArr = !!vRoot.questions[idx].more
+
+              vRoot.questions.splice(idx, 1)
+
+              if (containsMoreArr) {
+                vRoot.$awn.warning("Пункт списка с подпунктами был удален!", {
+                  labels: {
+                    warning: ''
+                  }
+                })
+              } else {
+                vRoot.$awn.warning("Пункт списка был удален!", {
+                  labels: {
+                    warning: ''
+                  }
+                })
+              }
+
+
+              return true
+            }
+
+            if (vRoot.questions[idx].more.length > 1) {
+              vRoot.questions[idx].more.splice(moreIdx, 1)
+
+              vRoot.$awn.warning("Подпункт был удален!", {
                 labels: {
-                  success: ''
+                  warning: ''
+                }
+              })
+
+            } else {
+              delete vRoot.questions[idx].more
+              vRoot.$set(vRoot.questions, idx, vRoot.questions[idx])
+              vRoot.$set(vRoot.questions[idx], 'result', 0)
+
+              vRoot.$awn.warning("Все подпункты были удалены!", {
+                labels: {
+                  warning: ''
                 }
               })
 
@@ -272,7 +453,24 @@ export default {
           }
         }
       ]
-      this.$emit("showContextMenu", event, contextMenuItem)
+
+      this.$emit("showContextMenu", event, contextMenuElement)
+    },
+    addNewQuestion() {
+      const id = this.getIdForElement
+      this.questions.push(
+          {id, title: `Новый елемент списка ${id}`, result: 0},
+      )
+
+      this.$awn.success("Добавлен новый пункт!", {
+        labels: {
+          success: ''
+        }
+      })
+
+    },
+    getIdForElementMore(idx) {
+      return this.questions[idx].more[this.questions[idx].more.length - 1].id + 1
     }
   },
   watch: {
@@ -285,26 +483,43 @@ export default {
     author(newValue) {
       saveDataToLocalStorage("author", newValue)
     }
+  },
+  computed: {
+    getIdForElement() {
+      const lastItem = this.questions[this.questions.length - 1]
+      return lastItem ? lastItem.id + 1 : 1
+    },
   }
 }
 </script>
 
 <style scoped lang="scss">
-
-
 .form-questions {
   width: 600px;
   margin: 0 auto 15px auto;
   flex: 1 1;
+  padding-top: 20px;
 
-  & h1 {
+  & h1.logo {
     text-align: center;
     margin: 5px 0 0 0;
     font-family: 'Kaushan Script', cursive;
 
+
     span {
       cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
+      position: relative;
+      & img {
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(110%, -50%);
+      }
     }
+
+
   }
 }
 
@@ -387,8 +602,11 @@ a.hidden {
     left: 10px;
     cursor: pointer;
 
+
     &.icon__close-open {
       left: 0;
+      width: 33%;
+      text-align: center;
     }
   }
 
@@ -401,29 +619,44 @@ a.hidden {
 
 .options-btns {
   width: 100%;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   text-align: right;
 }
 
 .btn-add {
-  width: 42px;
   height: 26px;
   border: 1px solid black;
   opacity: .4;
+  border-radius: 5px;
 
   &:hover {
     opacity: 1;
+    cursor: pointer;
   }
+
+  & span {
+    margin-right: 5px;
+  }
+
 }
 
 .hide_on_screenshot {
   display: none;
 }
 
+
 </style>
 
-<style>
+<style lang="scss">
 .awn-toast-content {
   font-size: 18px;
+}
+
+.awn-toast-wrapper {
+  padding: 22px 16px;
+
+  .awn-toast-content {
+    width: 100% !important;
+  }
 }
 </style>

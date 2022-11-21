@@ -21,9 +21,14 @@ function removeKeyLocalStorage(key) {
 
 }
 
+function clearStorage() {
+    localStorage.clear();
+}
+
 export {
     playAudio,
     saveDataToLocalStorage,
     getDataFromLocalStorage,
-    removeKeyLocalStorage
+    removeKeyLocalStorage,
+    clearStorage
 }
