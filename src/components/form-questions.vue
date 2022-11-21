@@ -79,7 +79,13 @@
 <script>
 import html2canvas from 'html2canvas';
 import VTimer from "@/components/v-timer";
-import {getDataFromLocalStorage, playAudio, removeKeyLocalStorage, saveDataToLocalStorage} from "@/assets/tools/script";
+import {
+  clearStorage,
+  getDataFromLocalStorage,
+  playAudio,
+  removeKeyLocalStorage,
+  saveDataToLocalStorage
+} from "@/assets/tools/script";
 
 import {getDeepCopyOfQuestionsDefault} from "@/data/script";
 import {VueMaskDirective} from 'v-mask';
@@ -304,6 +310,43 @@ export default {
                   "Идет сброс списка...",
               )
 
+            }
+
+          }
+        },
+        {
+          icon: 'fa-trash',
+          text: 'Очистить хранилище',
+          divider: true,
+          click: () => {
+            this.$awn.confirm(
+                `Нажмите 'Да', если у вас возникли ошибки или что-то не работает? <br> <strong>Внимание!</strong> После очистки произойдет полный сброс вашего листа!`,
+                onOk,
+                () => {
+                },
+                {
+                  labels: {
+                    confirm: 'Полная очистка!',
+                    confirmOk: "Да",
+                    confirmCancel: 'Отмена'
+                  }
+                }
+            )
+
+            function onOk() {
+              clearStorage();
+
+              let load = Promise.resolve(
+                  setTimeout(() => true, 3000)
+              )
+              thisRoot.$awn.asyncBlock(
+                  load,
+                  '',
+                  undefined,
+                  "Идет полная очистка...",
+              )
+
+              location.reload();
             }
 
           }
