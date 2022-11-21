@@ -1,8 +1,8 @@
 <template>
   <draggable :list="questions">
     <transition-group name="list" tag="p">
-      <div v-for="(question, questionIdx) in questionsArr" :key="question.id" :class="{'mt-30': question.more}">
-        <p class="question__item">
+      <div v-for="(question, questionIdx) in questionsArr" :key="question.id" :class="{'marg-5 ': question.more, 'question__item--important': question.important && question.more }">
+        <p class="question__item" :class="{'question__item--important': question.important && !question.more}">
         <span class="question__item__text">
           <span class="question__item__text__number">{{ questionIdx + 1 }}.</span>
           <span class="question__item__text--editable" contenteditable="false"
@@ -119,9 +119,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
+p{
+  margin: 0;
+}
+
 .question__item {
   overflow: hidden;
   font-family: 'Kaushan Script', cursive;
+  padding: 10px 8px;
+  margin: 0;
   &__text {
     margin-right: 7px;
 
@@ -144,6 +150,12 @@ export default {
 
   }
 
+  &--important {
+    outline: 2px solid red;
+    border-radius: 5px;
+    margin-bottom: 8px;
+  }
+
 
   &:after {
     content: '...................................................................................................................................';
@@ -163,12 +175,12 @@ export default {
 
 }
 
-.mt-30 {
-  margin-top: 25px;
+.marg-5 {
+  margin: 5px 0;
 }
 
 ul {
-  margin: 0 0 25px 0;
+  margin: 0;
 }
 
 .input__result {

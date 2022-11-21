@@ -4,8 +4,8 @@ import store from './store'
 import kiContext from '@kiyoaki_w/vue-context';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faMinus, faPen, faClock, faCircleXmark, faClockFour, faEraser, faPlus, faCirclePlus, faXmark} from '@fortawesome/free-solid-svg-icons';
-library.add(faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faMinus, faPen, faClock, faCircleXmark, faClockFour, faEraser, faPlus, faCirclePlus, faXmark);
+import { faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faMinus, faPen, faClock, faCircleXmark, faClockFour, faEraser, faPlus, faCirclePlus, faXmark, faStar} from '@fortawesome/free-solid-svg-icons';
+library.add(faArrowRight, faArrowLeft, faArrowUp, faArrowDown, faMinus, faPen, faClock, faCircleXmark, faClockFour, faEraser, faPlus, faCirclePlus, faXmark, faStar);
 import { VueMaskDirective } from 'v-mask'
 import VueAWN from "vue-awesome-notifications"
 import 'vue-awesome-notifications/dist/styles/style.css';

@@ -125,26 +125,6 @@ export default {
     }
   },
   methods: {
-    handleChange() {
-      console.log('changed');
-    },
-    inputChanged(value) {
-      this.activeNames = value;
-    },
-    getComponentData() {
-      return {
-        on: {
-          change: this.handleChange,
-          input: this.inputChanged
-        },
-        attrs: {
-          wrap: true
-        },
-        props: {
-          value: this.activeNames
-        }
-      };
-    },
     questionIncrement(question, more, operation = true) {
       let indexElement = this.questions.findIndex(item => {
         return item === question
@@ -334,11 +314,12 @@ export default {
     contextElementList(event, idx, moreIdx) {
       let vRoot = this
       let disabled = moreIdx === 0 ? true : !!moreIdx
+      let textMenuImportant = vRoot.questions[idx].important ? 'Отменить' : 'Важное'
+
       let contextMenuElement = [
         {
           icon: 'fa-circle-plus',
           text: 'Добавить подпункт',
-          divider: true,
           disabled: disabled,
           click: () => {
             let obj = vRoot.questions[idx]
@@ -363,6 +344,17 @@ export default {
               )
 
             }
+          }
+        },
+        {
+          icon: 'star',
+          text: textMenuImportant,
+          divider: true,
+          disabled: disabled,
+          click: () => {
+            let obj = vRoot.questions[idx]
+            let important = Boolean(obj.important)
+            vRoot.$set(obj, 'important', !important)
           }
         },
         {
@@ -454,14 +446,6 @@ export default {
       const lastItem = this.questions[this.questions.length - 1]
       return lastItem ? lastItem.id + 1 : 1
     },
-    // questionsComputed: {
-    //   get: function () {
-    //     return this.questions
-    //   },
-    //   set: function (newValue) {
-    //     this.questions = newValue
-    //   }
-    // }
   }
 }
 </script>
@@ -482,17 +466,6 @@ export default {
     span {
       cursor: url(https://i.stack.imgur.com/ygtZg.png), auto;
       position: relative;
-      //&::after {
-      //  content: "";
-      //  display: block;
-      //  position: absolute;
-      //  width: 50px;
-      //  height: 50px;
-      //  background: url("../assets/images/logo.png") no-repeat center / contain;
-      //  top: 0;
-      //  right: 0;
-      //  transform: translate(110%, -50%);
-      //}
       & img {
         width: 50px;
         height: 50px;
